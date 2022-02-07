@@ -57,45 +57,44 @@ public class DictionaryBatchConfiguration {
     }
 
     @Bean
-    public ItemWriter<DictionaryItem> writer(Dictionary dictionary) {
-        return new DictionaryItemWriter(dictionary);
+    public ItemProcessor<LogFileItem, LogFileItem> logFileItemProcessor() {
+        return logFileItem -> logFileItem;
     }
 
     @Bean
-    public Job importUserJob(JobBuilderFactory jobs, @Qualifier("step1") Step s1) {
+    public Job importUserJob(JobBuilderFactory jobs,
+                             @Qualifier("loadDictionaryStep") Step loadDictionaryStep,
+                             @Qualifier("loadLogDataStep") Step loadLogDataStep) {
         return jobs.get("importUserJob")
                 .incrementer(new RunIdIncrementer())
-                .flow(s1)
-                .end()
+                .start(loadDictionaryStep)
+                .next(loadLogDataStep)
                 .build();
     }
 
     @Bean
-    public Step step1(StepBuilderFactory stepBuilderFactory, ItemReader<DictionaryItem> itemReader,
-                      ItemWriter<DictionaryItem> itemWriter, ItemProcessor<DictionaryItem, DictionaryItem> itemProcessor) {
-        return stepBuilderFactory.get("step1")
+    public Step loadDictionaryStep(StepBuilderFactory stepBuilderFactory, ItemReader<DictionaryItem> itemReader,
+                                   ItemWriter<DictionaryItem> itemWriter, ItemProcessor<DictionaryItem, DictionaryItem> itemProcessor,
+                                   DictionaryLoadCompleteListener listener) {
+        return stepBuilderFactory.get("loadDictionaryStep")
                 .<DictionaryItem, DictionaryItem>chunk(10)
                 .reader(itemReader)
                 .processor(itemProcessor)
                 .writer(itemWriter)
+                .listener(listener)
                 .build();
     }
 
     @Bean
-    public Step loadLogDataStep(StepBuilderFactory stepBuilderFactory, ItemReader<DictionaryItem> itemReader,
-                      ItemWriter<DictionaryItem> itemWriter, ItemProcessor<DictionaryItem, DictionaryItem> itemProcessor) {
-        return stepBuilderFactory.get("step1")
-                .<DictionaryItem, DictionaryItem>chunk(10)
+    public Step loadLogDataStep(StepBuilderFactory stepBuilderFactory, ItemReader<LogFileItem> itemReader,
+                      ItemWriter<LogFileItem> itemWriter, ItemProcessor<LogFileItem, LogFileItem> itemProcessor) {
+        return stepBuilderFactory.get("loadLogDataStep")
+                .allowStartIfComplete(true)
+                .<LogFileItem, LogFileItem>chunk(10)
                 .reader(itemReader)
                 .processor(itemProcessor)
                 .writer(itemWriter)
                 .build();
-    }
-
-
-    @Bean
-    Dictionary dictionary() {
-        return new Dictionary();
     }
 
 }

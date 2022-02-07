@@ -37,7 +37,7 @@ public class DictionaryItemSeparatorPolicy implements RecordSeparatorPolicy {
 
     @Override
     public String postProcess(String s) {
-        System.out.println(s);
+//        System.out.println(s);
         if (s.endsWith(",")) {
             return s.substring(1, s.length() - 2);
         }

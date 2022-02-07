@@ -1,19 +1,22 @@
 package com.feedbeforeflight.reglogproducer.dictionary;
 
 import com.feedbeforeflight.reglogproducer.batch.DictionaryItem;
+import lombok.Getter;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 
+@Component
 public class Dictionary {
 
-    private HashMap<Integer, DictionaryUser> userMap;
-    private HashMap<Integer, DictionaryComputer> computerMap;
-    private HashMap<Integer, DictionaryApplication> applicationMap;
-    private HashMap<Integer, DictionaryEvent> eventMap;
-    private HashMap<Integer, DictionaryMetadata> metadataMap;
-    private HashMap<Integer, DictionaryServer> serverMap;
-    private HashMap<Integer, DictionaryMainPort> mainPortMap;
-    private HashMap<Integer, DictionaryAuxiliaryPort> auxiliaryPortMap;
+    private final HashMap<Integer, DictionaryUser> userMap;
+    private final HashMap<Integer, DictionaryComputer> computerMap;
+    private final HashMap<Integer, DictionaryApplication> applicationMap;
+    private final HashMap<Integer, DictionaryEvent> eventMap;
+    private final HashMap<Integer, DictionaryMetadata> metadataMap;
+    private final HashMap<Integer, DictionaryServer> serverMap;
+    private final HashMap<Integer, DictionaryMainPort> mainPortMap;
+    private final HashMap<Integer, DictionaryAuxiliaryPort> auxiliaryPortMap;
 
     public Dictionary() {
         userMap = new HashMap<>();
@@ -24,6 +27,19 @@ public class Dictionary {
         serverMap = new HashMap<>();
         mainPortMap = new HashMap<>();
         auxiliaryPortMap = new HashMap<>();
+    }
+
+    public String summary() {
+        return new StringBuilder()
+                .append("Users: ").append(userMap.size()).append(System.lineSeparator())
+                .append("Computers: ").append(computerMap.size()).append(System.lineSeparator())
+                .append("Applications: ").append(applicationMap.size()).append(System.lineSeparator())
+                .append("Events: ").append(eventMap.size()).append(System.lineSeparator())
+                .append("Metadata items: ").append(metadataMap.size()).append(System.lineSeparator())
+                .append("Servers: ").append(serverMap.size()).append(System.lineSeparator())
+                .append("Main ports: ").append(mainPortMap.size()).append(System.lineSeparator())
+                .append("Auxiliary ports: ").append(auxiliaryPortMap.size()).append(System.lineSeparator())
+                .toString();
     }
 
     public void addItem(DictionaryItem dictionaryItem) {
@@ -58,6 +74,10 @@ public class Dictionary {
     private void addUser(String[] fields) {
         DictionaryUser user = new DictionaryUser(Integer.valueOf(fields[2]), fields[0], fields[1]);
         userMap.put(user.getId(), user);
+    }
+
+    public DictionaryUser getUser(int id) {
+        return userMap.get(id);
     }
 
     private void addComputer(String[] fields) {

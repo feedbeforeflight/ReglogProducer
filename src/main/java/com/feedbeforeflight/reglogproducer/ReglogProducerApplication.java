@@ -3,6 +3,7 @@ package com.feedbeforeflight.reglogproducer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
