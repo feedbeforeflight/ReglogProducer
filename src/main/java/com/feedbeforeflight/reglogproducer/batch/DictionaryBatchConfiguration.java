@@ -1,6 +1,5 @@
 package com.feedbeforeflight.reglogproducer.batch;
 
-import com.feedbeforeflight.reglogproducer.dictionary.Dictionary;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -27,14 +26,14 @@ import java.nio.file.Paths;
 @EnableBatchProcessing
 public class DictionaryBatchConfiguration {
 
-    @Value("${log-directory-path}")
-    private String logDirectoryPath;
+    @Value("${log-directory-name}")
+    private String logDirectoryName;
 
     @Bean
     public ItemReader<DictionaryItem> reader(RecordSeparatorPolicy recordSeparatorPolicy) throws MalformedURLException {
         FlatFileItemReader<DictionaryItem> reader = new FlatFileItemReader<>();
         reader.setRecordSeparatorPolicy(recordSeparatorPolicy);
-        reader.setResource(new FileSystemResource(Paths.get(logDirectoryPath, "1Cv8.lgf").toString()));
+        reader.setResource(new FileSystemResource(Paths.get(logDirectoryName, "1Cv8.lgf").toString()));
         reader.setLinesToSkip(2);
 
         DefaultLineMapper<DictionaryItem> lineMapper = new DefaultLineMapper<>();
