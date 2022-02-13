@@ -1,6 +1,7 @@
 package com.feedbeforeflight.reglogproducer.logfile;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.io.BufferedReader;
@@ -14,9 +15,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-class LogfileDescription {
+@Slf4j
+public class LogfileDescription {
     @Getter
-    private final String fileName;
+    private final Path filePath;
     @Getter
     private Date lastModified;
     @Getter
@@ -27,13 +29,13 @@ class LogfileDescription {
     @Value("${work-directory-name}")
     String workDirectoryName;
 
-    LogfileDescription(String fileName) {
-        this.fileName = fileName;
+    LogfileDescription(Path filePath) {
+        this.filePath = filePath;
         simpleDateFormat = new SimpleDateFormat("yyyyMMddkkmmss");
     }
 
     public void load() {
-        Path descriptionFilePath = Paths.get(workDirectoryName, fileName + ".rpf");
+        Path descriptionFilePath = Paths.get(workDirectoryName, filePath.getFileName().toString() + ".rpf");
         if (!Files.exists(descriptionFilePath)) {
             lastModified = null;
             linesProcessed = 0;
@@ -50,9 +52,9 @@ class LogfileDescription {
             }
 
             buffer = bufferedReader.readLine();
-            linesProcessed = Long.valueOf(buffer);
+            linesProcessed = Long.parseLong(buffer);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.debug("Error loading logfile description file: ");
         }
     }
 
@@ -61,13 +63,13 @@ class LogfileDescription {
             return;
         }
 
-        Path descriptionFilePath = Paths.get(workDirectoryName, fileName + ".rpf");
+        Path descriptionFilePath = Paths.get(workDirectoryName, filePath.getFileName().toString() + ".rpf");
 
         try (BufferedWriter bufferedWriter = Files.newBufferedWriter(descriptionFilePath)) {
             bufferedWriter.write(simpleDateFormat.format(lastModified) + "\n");
             bufferedWriter.write(String.valueOf(linesProcessed));
         } catch (IOException e) {
-            e.printStackTrace();
+            log.debug("Error saving logfile description file: ", e);
         }
     }
 
@@ -76,14 +78,13 @@ class LogfileDescription {
             return true;
         }
 
-        Path targetFile = Paths.get(getFileName());
         BasicFileAttributes basicFileAttributes = null;
         try {
-            basicFileAttributes = Files.readAttributes(targetFile, BasicFileAttributes.class);
+            basicFileAttributes = Files.readAttributes(filePath, BasicFileAttributes.class);
             Date date = new Date(basicFileAttributes.lastModifiedTime().toMillis());
             return date.after(lastModified);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.debug("Error reading logfile attributes: ", e);
             return false;
         }
     }

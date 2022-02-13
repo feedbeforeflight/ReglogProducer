@@ -9,7 +9,7 @@ import java.util.List;
 @Component
 public class DictionaryItemWriter implements ItemWriter<DictionaryItem> {
 
-    private Dictionary dictionary;
+    private final Dictionary dictionary;
 
     public DictionaryItemWriter(Dictionary dictionary) {
         this.dictionary = dictionary;

@@ -1,7 +1,6 @@
 package com.feedbeforeflight.reglogproducer.dictionary;
 
 import com.feedbeforeflight.reglogproducer.batch.DictionaryItem;
-import lombok.Getter;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -30,16 +29,14 @@ public class Dictionary {
     }
 
     public String summary() {
-        return new StringBuilder()
-                .append("Users: ").append(userMap.size()).append(System.lineSeparator())
-                .append("Computers: ").append(computerMap.size()).append(System.lineSeparator())
-                .append("Applications: ").append(applicationMap.size()).append(System.lineSeparator())
-                .append("Events: ").append(eventMap.size()).append(System.lineSeparator())
-                .append("Metadata items: ").append(metadataMap.size()).append(System.lineSeparator())
-                .append("Servers: ").append(serverMap.size()).append(System.lineSeparator())
-                .append("Main ports: ").append(mainPortMap.size()).append(System.lineSeparator())
-                .append("Auxiliary ports: ").append(auxiliaryPortMap.size()).append(System.lineSeparator())
-                .toString();
+        return "Users: " + userMap.size() + System.lineSeparator() +
+                "Computers: " + computerMap.size() + System.lineSeparator() +
+                "Applications: " + applicationMap.size() + System.lineSeparator() +
+                "Events: " + eventMap.size() + System.lineSeparator() +
+                "Metadata items: " + metadataMap.size() + System.lineSeparator() +
+                "Servers: " + serverMap.size() + System.lineSeparator() +
+                "Main ports: " + mainPortMap.size() + System.lineSeparator() +
+                "Auxiliary ports: " + auxiliaryPortMap.size() + System.lineSeparator();
     }
 
     public void addItem(DictionaryItem dictionaryItem) {
@@ -72,7 +69,7 @@ public class Dictionary {
     }
 
     private void addUser(String[] fields) {
-        DictionaryUser user = new DictionaryUser(Integer.valueOf(fields[2]), fields[0], fields[1]);
+        DictionaryUser user = new DictionaryUser(Integer.parseInt(fields[2]), fields[0], fields[1]);
         userMap.put(user.getId(), user);
     }
 
@@ -81,38 +78,65 @@ public class Dictionary {
     }
 
     private void addComputer(String[] fields) {
-        DictionaryComputer computer = new DictionaryComputer(Integer.valueOf(fields[1]), fields[0]);
+        DictionaryComputer computer = new DictionaryComputer(Integer.parseInt(fields[1]), fields[0]);
         computerMap.put(computer.getId(), computer);
     }
 
+    public DictionaryComputer getComputer(int id) {
+        return computerMap.get(id);
+    }
+
     private void addApplication(String[] fields) {
-        DictionaryApplication application = new DictionaryApplication(Integer.valueOf(fields[1]), fields[0]);
+        DictionaryApplication application = new DictionaryApplication(Integer.parseInt(fields[1]), fields[0]);
         applicationMap.put(application.getId(), application);
     }
 
+    public DictionaryApplication getApplication(int id) {
+        return applicationMap.get(id);
+    }
+
     private void addEvent(String[] fields) {
-        DictionaryEvent event = new DictionaryEvent(Integer.valueOf(fields[1]), fields[0]);
+        DictionaryEvent event = new DictionaryEvent(Integer.parseInt(fields[1]), fields[0]);
         eventMap.put(event.getId(), event);
     }
 
+    public DictionaryEvent getEvent(int id) {
+        return eventMap.get(id);
+    }
+
     private void addMetadata(String[] fields) {
-        DictionaryMetadata metadata = new DictionaryMetadata(Integer.valueOf(fields[2]), fields[0], fields[1]);
+        DictionaryMetadata metadata = new DictionaryMetadata(Integer.parseInt(fields[2]), fields[0], fields[1]);
         metadataMap.put(metadata.getId(), metadata);
     }
 
+    public DictionaryMetadata getMetadata(int id) {
+        return metadataMap.get(id);
+    }
+
     private void addServer(String[] fields) {
-        DictionaryServer server = new DictionaryServer(Integer.valueOf(fields[1]), fields[0]);
+        DictionaryServer server = new DictionaryServer(Integer.parseInt(fields[1]), fields[0]);
         serverMap.put(server.getId(), server);
     }
 
+    public DictionaryServer getServer(int id) {
+        return serverMap.get(id);
+    }
+
     private void addMainPort(String[] fields) {
-        DictionaryMainPort port = new DictionaryMainPort(Integer.valueOf(fields[1]), fields[0]);
+        DictionaryMainPort port = new DictionaryMainPort(Integer.parseInt(fields[1]), Integer.parseInt(fields[0]));
         mainPortMap.put(port.getId(), port);
     }
 
+    public DictionaryMainPort getMainPort(int id) {
+        return mainPortMap.get(id);
+    }
+
     private void addAuxiliaryPort(String[] fields) {
-        DictionaryAuxiliaryPort port = new DictionaryAuxiliaryPort(Integer.valueOf(fields[1]), fields[0]);
+        DictionaryAuxiliaryPort port = new DictionaryAuxiliaryPort(Integer.parseInt(fields[1]), Integer.parseInt(fields[0]));
         auxiliaryPortMap.put(port.getId(), port);
     }
 
+    public DictionaryAuxiliaryPort getAuxiliaryPort(int id) {
+        return auxiliaryPortMap.get(id);
+    }
 }

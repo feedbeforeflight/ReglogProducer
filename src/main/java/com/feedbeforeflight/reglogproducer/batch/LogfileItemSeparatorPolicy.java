@@ -6,25 +6,29 @@ import org.springframework.batch.item.file.separator.RecordSeparatorPolicy;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class DictionaryItemSeparatorPolicy implements RecordSeparatorPolicy {
+public class LogfileItemSeparatorPolicy implements RecordSeparatorPolicy {
 
-    Pattern guidPattern;
+    private final Pattern guidPattern;
 
-    public DictionaryItemSeparatorPolicy() {
+    public LogfileItemSeparatorPolicy() {
         guidPattern = Pattern.compile("^\\{?\\p{XDigit}{8}-(?:\\p{XDigit}{4}-){3}\\p{XDigit}{12}}?$");
     }
 
     @Override
     public boolean isEndOfRecord(String s) {
         if (s.endsWith("},")) {
-            return true;
+            return LogfileUtils.parenthesisCompleted(s);
         }
         if (s.endsWith("1CV8LOG(ver 2.0)")) { // to avoid "magic" EF BB BF bytes appearing in any unicode text file
             return true;
         }
-        if (s.startsWith("{")) {
+        if (s.endsWith("}")) {
             return LogfileUtils.parenthesisCompleted(s);
-        } else {
+        }
+        if (s.isEmpty()) { // empty 3-rd string
+            return true;
+        }
+        else {
             Matcher m = guidPattern.matcher(s);
             return m.matches();
         }
@@ -32,11 +36,7 @@ public class DictionaryItemSeparatorPolicy implements RecordSeparatorPolicy {
 
     @Override
     public String postProcess(String s) {
-        if (s.endsWith(",")) {
-            return s.substring(1, s.length() - 2);
-        } else {
-            return s.substring(1, s.length() - 1);
-        }
+        return s;
     }
 
     @Override

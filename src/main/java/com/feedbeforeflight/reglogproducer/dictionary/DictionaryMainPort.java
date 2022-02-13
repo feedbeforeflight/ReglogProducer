@@ -9,9 +9,9 @@ public class DictionaryMainPort {
     @Getter
     private final int id;
     @Getter
-    private final String name;
+    private final int number;
 
-    public String Presentation() {
-        return name;
+    public  int Presentation() {
+        return number;
     }
 }

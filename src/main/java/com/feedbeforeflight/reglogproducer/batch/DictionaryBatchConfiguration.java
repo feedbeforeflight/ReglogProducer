@@ -1,5 +1,6 @@
 package com.feedbeforeflight.reglogproducer.batch;
 
+import com.feedbeforeflight.reglogproducer.logfile.LogfileFilesList;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -56,18 +57,16 @@ public class DictionaryBatchConfiguration {
     }
 
     @Bean
-    public ItemProcessor<LogFileItem, LogFileItem> logFileItemProcessor() {
-        return logFileItem -> logFileItem;
+    public ItemProcessor<LogfileItem, LogfileItem> logFileItemProcessor() {
+        return logfileItem -> logfileItem;
     }
 
     @Bean
-    public Job importUserJob(JobBuilderFactory jobs,
-                             @Qualifier("loadDictionaryStep") Step loadDictionaryStep,
-                             @Qualifier("loadLogDataStep") Step loadLogDataStep) {
-        return jobs.get("importUserJob")
+    public Job loadDictionaryJob(JobBuilderFactory jobs,
+                                 @Qualifier("loadDictionaryStep") Step loadDictionaryStep) {
+        return jobs.get("loadDictionaryJob")
                 .incrementer(new RunIdIncrementer())
                 .start(loadDictionaryStep)
-                .next(loadLogDataStep)
                 .build();
     }
 
@@ -81,18 +80,6 @@ public class DictionaryBatchConfiguration {
                 .processor(itemProcessor)
                 .writer(itemWriter)
                 .listener(listener)
-                .build();
-    }
-
-    @Bean
-    public Step loadLogDataStep(StepBuilderFactory stepBuilderFactory, ItemReader<LogFileItem> itemReader,
-                      ItemWriter<LogFileItem> itemWriter, ItemProcessor<LogFileItem, LogFileItem> itemProcessor) {
-        return stepBuilderFactory.get("loadLogDataStep")
-                .allowStartIfComplete(true)
-                .<LogFileItem, LogFileItem>chunk(10)
-                .reader(itemReader)
-                .processor(itemProcessor)
-                .writer(itemWriter)
                 .build();
     }
 
