@@ -9,6 +9,6 @@ import java.util.List;
 public class LogFileItemWriter implements ItemWriter<LogfileItem> {
     @Override
     public void write(List<? extends LogfileItem> list) throws Exception {
-        list.stream().forEach(i-> System.out.println(i.toString()));
+//        list.stream().forEach(i-> System.out.println(i.toString()));
     }
 }

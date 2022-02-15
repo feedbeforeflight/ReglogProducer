@@ -22,6 +22,8 @@ public class LogfileFilesList {
 
     @Value("${log-directory-name}")
     private String logDirectoryName;
+    @Value("${work-directory-name}")
+    String workDirectoryName;
 
     private final ArrayList<LogfileDescription> logfileDescriptionList;
 
@@ -40,7 +42,7 @@ public class LogfileFilesList {
     }
 
     private void appendLogfile(Path filePath) {
-        LogfileDescription logfileDescription = new LogfileDescription(filePath);
+        LogfileDescription logfileDescription = new LogfileDescription(filePath, workDirectoryName);
         logfileDescription.load();
         logfileDescriptionList.add(logfileDescription);
     }

@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.FileSystemResource;
 
 import java.net.MalformedURLException;
@@ -63,18 +62,18 @@ public class LogfileItemBatchConfiguration {
     private Step getLoadLogfileStep(LogfileDescription logfileDescription) throws MalformedURLException {
         return stepBuilderFactory.get("loadLogfileStep")
                 .<LogfileItem, LogfileItem>chunk(10)
-                .reader(createReader(logfileDescription.getFilePath().toString()))
+                .reader(createReader(logfileDescription.getFilePath().toString(), logfileDescription.getItemsProcessed()))
                 .processor(createItemProcessor())
                 .writer(createItemWriter())
-                .listener(new LogfileItemStepExecutionListener())
+                .listener(new LogfileItemStepExecutionListener(logfileDescription))
                 .build();
     }
 
-    private ItemReader<LogfileItem> createReader(String filename) throws MalformedURLException {
+    private ItemReader<LogfileItem> createReader(String filename, int skipItems) throws MalformedURLException {
         FlatFileItemReader<LogfileItem> reader = new FlatFileItemReader<>();
         reader.setRecordSeparatorPolicy(new LogfileItemSeparatorPolicy());
         reader.setResource(new FileSystemResource(filename));
-        reader.setLinesToSkip(3);
+        reader.setLinesToSkip(3 + skipItems);
 
         DefaultLineMapper<LogfileItem> lineMapper = new DefaultLineMapper<>();
         lineMapper.setLineTokenizer(new LogfileLineTokenizer());
