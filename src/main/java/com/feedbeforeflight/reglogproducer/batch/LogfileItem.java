@@ -1,5 +1,7 @@
 package com.feedbeforeflight.reglogproducer.batch;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.feedbeforeflight.reglogproducer.logfile.LogfileEventImportance;
 import com.feedbeforeflight.reglogproducer.logfile.TransactionState;
 import lombok.Getter;
@@ -7,6 +9,7 @@ import lombok.Setter;
 
 import java.util.Date;
 
+@JsonAutoDetect
 public class LogfileItem {
 
     @Getter @Setter
@@ -46,6 +49,7 @@ public class LogfileItem {
     @Getter @Setter
     private int session;
 
+    @JsonIgnore
     public String toString() {
         return timestamp.toString() + ", " +
                 (transactionState == null ? "" : transactionState.getName()) + ", " +

@@ -1,11 +1,13 @@
 package com.feedbeforeflight.reglogproducer.logfile;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -42,8 +44,24 @@ public class LogfileFilesList {
     }
 
     private void appendLogfile(Path filePath) {
-        LogfileDescription logfileDescription = new LogfileDescription(filePath, workDirectoryName);
-        logfileDescription.load();
+        Path descriptionFilePath = Paths.get(workDirectoryName, filePath.getFileName().toString() + ".rpf");
+        LogfileDescription logfileDescription;
+        if (!Files.exists(descriptionFilePath)) {
+            logfileDescription = new LogfileDescription(filePath, workDirectoryName);
+        }
+        else {
+            try (BufferedReader bufferedReader = Files.newBufferedReader(descriptionFilePath)) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                logfileDescription = objectMapper.readValue(bufferedReader, LogfileDescription.class);
+                logfileDescription.setFilePath(filePath);
+                logfileDescription.setWorkDirectoryName(workDirectoryName);
+            } catch (IOException e) {
+                log.debug("Error loading logfile description file ", e);
+                logfileDescription = new LogfileDescription(filePath, workDirectoryName);
+            }
+        }
+
+//        logfileDescription.load();
         logfileDescriptionList.add(logfileDescription);
     }
 
