@@ -13,6 +13,8 @@ import java.util.Date;
 public class LogfileItem {
 
     @Getter @Setter
+    private String databaseName;
+    @Getter @Setter
     private Date timestamp;
     @Getter @Setter
     private TransactionState transactionState;

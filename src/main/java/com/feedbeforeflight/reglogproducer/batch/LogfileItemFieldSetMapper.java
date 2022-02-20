@@ -21,17 +21,20 @@ public class LogfileItemFieldSetMapper implements FieldSetMapper<LogfileItem> {
     private final Dictionary dictionary;
     private int timeZone;
     private final long timezoneMilliseconds;
+    private final String databaseName;
 
-    public LogfileItemFieldSetMapper(Dictionary dictionary, int timezome) {
+    public LogfileItemFieldSetMapper(Dictionary dictionary, int timezome, String databaseName) {
         this.dictionary = dictionary;
         this.timeZone = timezome;
         timezoneMilliseconds = timeZone * 3600000L;
         simpleDateFormat = new SimpleDateFormat("yyyyMMddkkmmss");
+        this.databaseName = databaseName;
     }
 
     @Override
     public LogfileItem mapFieldSet(FieldSet fieldSet) {
         LogfileItem result = new LogfileItem();
+        result.setDatabaseName(databaseName);
 
         // 1) Дата и время в формате "yyyyMMddHHmmss", легко превращается в дату функцией Дата();
         try {

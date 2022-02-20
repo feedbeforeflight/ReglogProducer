@@ -35,6 +35,8 @@ public class LogfileItemBatchConfiguration {
 
     @Value("${timezone}")
     private int timezone;
+    @Value("${database-name}")
+    private String databaseName;
 
     public LogfileItemBatchConfiguration(StepBuilderFactory stepBuilderFactory, Dictionary dictionary) {
         this.stepBuilderFactory = stepBuilderFactory;
@@ -77,7 +79,7 @@ public class LogfileItemBatchConfiguration {
 
         DefaultLineMapper<LogfileItem> lineMapper = new DefaultLineMapper<>();
         lineMapper.setLineTokenizer(new LogfileLineTokenizer());
-        lineMapper.setFieldSetMapper(new LogfileItemFieldSetMapper(dictionary, timezone));
+        lineMapper.setFieldSetMapper(new LogfileItemFieldSetMapper(dictionary, timezone, databaseName));
 
         reader.setLineMapper(lineMapper);
 
