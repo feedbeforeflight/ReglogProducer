@@ -1,6 +1,7 @@
 package com.feedbeforeflight.reglogproducer;
 
 import com.feedbeforeflight.reglogproducer.logfile.LogfileFilesList;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
@@ -14,6 +15,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
 @Component
+@Slf4j
 public class ReglogProducerRunner implements CommandLineRunner, ApplicationContextAware {
 
     @Autowired
@@ -32,11 +34,11 @@ public class ReglogProducerRunner implements CommandLineRunner, ApplicationConte
 
     @Override
     public void run(String... args) throws Exception {
-        System.out.println("Run, Forrest, run...");
+        log.info("Run, Forrest, run...");
 
         if (filesList.getFileDescriptionListToLoad().size() == 0) {
-            System.out.println("Nothing to read. Exit.");
-            return;
+            log.info("Nothing to read. Exit.");
+            System.exit(0);
         }
 
         JobParameters dictionaryJobParameters = new JobParametersBuilder()
@@ -52,6 +54,8 @@ public class ReglogProducerRunner implements CommandLineRunner, ApplicationConte
                 .toJobParameters();
 
         jobLauncher.run(logfileJob, logfileJobParameters);
+
+        System.exit(0);
     }
 
     @Override

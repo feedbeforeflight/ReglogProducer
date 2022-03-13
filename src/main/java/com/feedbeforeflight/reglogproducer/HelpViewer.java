@@ -1,7 +1,6 @@
 package com.feedbeforeflight.reglogproducer;
 
 public class HelpViewer {
-
     public static void printHelp() {
 
         System.out.println("Correct usage: ");

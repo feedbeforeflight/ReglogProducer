@@ -24,11 +24,15 @@ public class LogfileItemStepExecutionListener implements StepExecutionListener {
     public ExitStatus afterStep(StepExecution stepExecution) {
         System.out.println("Finished reading log file");
 
+
         // save read rows count
-        logfileDescription.readDone(stepExecution.getReadCount());
-        logfileDescription.save();
+        if (stepExecution.getExitStatus().equals(ExitStatus.COMPLETED)) {
+            logfileDescription.readDone(stepExecution.getReadCount());
+            logfileDescription.save();
+        }
 
         System.out.println("Items read: " + stepExecution.getReadCount());
+        System.out.println(stepExecution.getExitStatus().toString());
 
         return stepExecution.getExitStatus();
     }

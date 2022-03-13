@@ -5,9 +5,7 @@ import com.feedbeforeflight.reglogproducer.dictionary.*;
 import com.feedbeforeflight.reglogproducer.logfile.LogfileEventImportance;
 import com.feedbeforeflight.reglogproducer.logfile.TransactionState;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.batch.item.file.mapping.FieldSetMapper;
 import org.springframework.batch.item.file.transform.FieldSet;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -15,25 +13,29 @@ import java.util.Date;
 
 
 @Slf4j
-public class LogfileItemFieldSetMapper implements FieldSetMapper<LogfileItem> {
+public class LogfileItemFieldSetMapper implements RowNumberAwareFieldSetMapper<LogfileItem> {
 
     private final SimpleDateFormat simpleDateFormat;
     private final Dictionary dictionary;
     private int timeZone;
     private final long timezoneMilliseconds;
     private final String databaseName;
+    private final String logfileName;
 
-    public LogfileItemFieldSetMapper(Dictionary dictionary, int timezome, String databaseName) {
+    public LogfileItemFieldSetMapper(Dictionary dictionary, int timezome, String databaseName, String logfileName) {
         this.dictionary = dictionary;
         this.timeZone = timezome;
+        this.logfileName = logfileName;
+        this.databaseName = databaseName;
+
         timezoneMilliseconds = timeZone * 3600000L;
         simpleDateFormat = new SimpleDateFormat("yyyyMMddkkmmss");
-        this.databaseName = databaseName;
     }
 
     @Override
-    public LogfileItem mapFieldSet(FieldSet fieldSet) {
+    public LogfileItem mapFieldSet(FieldSet fieldSet, int rowNumber) {
         LogfileItem result = new LogfileItem();
+        result.createId(logfileName, rowNumber);
         result.setDatabaseName(databaseName);
 
         // 1) Дата и время в формате "yyyyMMddHHmmss", легко превращается в дату функцией Дата();
@@ -60,6 +62,7 @@ public class LogfileItemFieldSetMapper implements FieldSetMapper<LogfileItem> {
         // 4) Пользователь – указывается номер в массиве пользователей;
         DictionaryUser user = dictionary.getUser(Integer.parseInt(fieldSet.readString(3)));
         result.setUsername(user == null ? "" : user.Presentation());
+        result.setUserGUID(user == null ? "" : user.getGuid());
 
         // 5) Компьютер – указывается номер в массиве компьютеров;
         DictionaryComputer computer = dictionary.getComputer(Integer.parseInt(fieldSet.readString(4)));
@@ -86,6 +89,7 @@ public class LogfileItemFieldSetMapper implements FieldSetMapper<LogfileItem> {
         // 11) Метаданные – указывается номер в массиве метаданных;
         DictionaryMetadata dictionaryMetadata= dictionary.getMetadata(Integer.parseInt(fieldSet.readString(10)));
         result.setMetadata(dictionaryMetadata == null ? "" : dictionaryMetadata.Presentation());
+        result.setMetadataGUID(dictionaryMetadata == null ? "" : dictionaryMetadata.getGuid());
 
         // 12) Данные – самый хитрый элемент, содержащий вложенную запись;
         result.setData(fieldSet.readString(11));

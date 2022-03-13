@@ -7,10 +7,18 @@ import com.feedbeforeflight.reglogproducer.logfile.TransactionState;
 import lombok.Getter;
 import lombok.Setter;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.Document;
+
 import java.util.Date;
 
 @JsonAutoDetect
+@Document(indexName = "${elastic-index-name}")
 public class LogfileItem {
+
+    @Getter @Setter
+    @Id
+    private String id; // format: [filename without extension].[row number]
 
     @Getter @Setter
     private String databaseName;
@@ -22,6 +30,9 @@ public class LogfileItem {
     private Date transactionDate;
     @Getter @Setter
     private int transactionNumber = 0;
+
+    @Getter @Setter
+    private String userGUID;
     @Getter @Setter
     private String username;
     @Getter @Setter
@@ -36,6 +47,9 @@ public class LogfileItem {
     private LogfileEventImportance eventImportance;
     @Getter @Setter
     private String comment;
+
+    @Getter @Setter
+    private String metadataGUID;
     @Getter @Setter
     private String metadata;
     @Getter @Setter
@@ -52,8 +66,14 @@ public class LogfileItem {
     private int session;
 
     @JsonIgnore
+    public void createId(String fileName, int rowNumber) {
+        id = fileName + "." + rowNumber;
+    }
+
+    @JsonIgnore
     public String toString() {
-        return timestamp.toString() + ", " +
+        return id + ", "+
+                timestamp.toString() + ", " +
                 (transactionState == null ? "" : transactionState.getName()) + ", " +
                 (transactionDate == null ? "-" : transactionDate.toString()) + ", " +
                 (transactionNumber == 0 ? "-" : transactionNumber) + ", " +
