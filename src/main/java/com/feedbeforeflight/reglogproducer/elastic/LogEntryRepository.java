@@ -6,5 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface LogEntryRepository extends ElasticsearchRepository<LogfileItem, String> {
+//public interface LogEntryRepository {
 
 }

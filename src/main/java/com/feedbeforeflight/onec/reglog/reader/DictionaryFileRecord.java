@@ -1,22 +1,22 @@
-package com.feedbeforeflight.reglogproducer.batch;
+package com.feedbeforeflight.onec.reglog.reader;
 
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Arrays;
 
-public class DictionaryItem {
+public class DictionaryFileRecord {
 
     @Getter @Setter
     private int typeId;
     @Getter @Setter
     private String[] fields;
 
-    public DictionaryItem(int typeId) {
+    public DictionaryFileRecord(int typeId) {
         this.typeId = typeId;
     }
 
-    public DictionaryItem(int typeId, int fieldCount) {
+    public DictionaryFileRecord(int typeId, int fieldCount) {
         this.typeId = typeId;
         this.fields = new String[fieldCount];
     }

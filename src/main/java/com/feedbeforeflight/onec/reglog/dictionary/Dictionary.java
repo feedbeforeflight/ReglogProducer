@@ -1,11 +1,8 @@
-package com.feedbeforeflight.reglogproducer.dictionary;
-
-import com.feedbeforeflight.reglogproducer.batch.DictionaryItem;
-import org.springframework.stereotype.Component;
+package com.feedbeforeflight.onec.reglog.dictionary;
 
 import java.util.HashMap;
 
-@Component
+
 public class Dictionary {
 
     private final HashMap<Integer, DictionaryUser> userMap;
@@ -39,37 +36,7 @@ public class Dictionary {
                 "Auxiliary ports: " + auxiliaryPortMap.size() + System.lineSeparator();
     }
 
-    public void addItem(DictionaryItem dictionaryItem) {
-        switch (dictionaryItem.getTypeId()) {
-            case 1:
-                addUser(dictionaryItem.getFields());
-                break;
-            case 2:
-                addComputer(dictionaryItem.getFields());
-                break;
-            case 3:
-                addApplication(dictionaryItem.getFields());
-                break;
-            case 4:
-                addEvent(dictionaryItem.getFields());
-                break;
-            case 5:
-                addMetadata(dictionaryItem.getFields());
-                break;
-            case 6:
-                addServer(dictionaryItem.getFields());
-                break;
-            case 7:
-                addMainPort(dictionaryItem.getFields());
-                break;
-            case 8:
-                addAuxiliaryPort(dictionaryItem.getFields());
-                break;
-        }
-    }
-
-    private void addUser(String[] fields) {
-        DictionaryUser user = new DictionaryUser(Integer.parseInt(fields[2]), fields[0], fields[1]);
+    public void addUser(DictionaryUser user) {
         userMap.put(user.getId(), user);
     }
 
@@ -77,8 +44,7 @@ public class Dictionary {
         return userMap.get(id);
     }
 
-    private void addComputer(String[] fields) {
-        DictionaryComputer computer = new DictionaryComputer(Integer.parseInt(fields[1]), fields[0]);
+    public void addComputer(DictionaryComputer computer) {
         computerMap.put(computer.getId(), computer);
     }
 
@@ -86,8 +52,7 @@ public class Dictionary {
         return computerMap.get(id);
     }
 
-    private void addApplication(String[] fields) {
-        DictionaryApplication application = new DictionaryApplication(Integer.parseInt(fields[1]), fields[0]);
+    public void addApplication(DictionaryApplication application) {
         applicationMap.put(application.getId(), application);
     }
 
@@ -95,8 +60,7 @@ public class Dictionary {
         return applicationMap.get(id);
     }
 
-    private void addEvent(String[] fields) {
-        DictionaryEvent event = new DictionaryEvent(Integer.parseInt(fields[1]), fields[0]);
+    public void addEvent(DictionaryEvent event) {
         eventMap.put(event.getId(), event);
     }
 
@@ -104,8 +68,7 @@ public class Dictionary {
         return eventMap.get(id);
     }
 
-    private void addMetadata(String[] fields) {
-        DictionaryMetadata metadata = new DictionaryMetadata(Integer.parseInt(fields[2]), fields[0], fields[1]);
+    public void addMetadata(DictionaryMetadata metadata) {
         metadataMap.put(metadata.getId(), metadata);
     }
 
@@ -113,8 +76,7 @@ public class Dictionary {
         return metadataMap.get(id);
     }
 
-    private void addServer(String[] fields) {
-        DictionaryServer server = new DictionaryServer(Integer.parseInt(fields[1]), fields[0]);
+    public void addServer(DictionaryServer server) {
         serverMap.put(server.getId(), server);
     }
 
@@ -122,8 +84,7 @@ public class Dictionary {
         return serverMap.get(id);
     }
 
-    private void addMainPort(String[] fields) {
-        DictionaryMainPort port = new DictionaryMainPort(Integer.parseInt(fields[1]), Integer.parseInt(fields[0]));
+    public void addMainPort(DictionaryMainPort port) {
         mainPortMap.put(port.getId(), port);
     }
 
@@ -131,8 +92,7 @@ public class Dictionary {
         return mainPortMap.get(id);
     }
 
-    private void addAuxiliaryPort(String[] fields) {
-        DictionaryAuxiliaryPort port = new DictionaryAuxiliaryPort(Integer.parseInt(fields[1]), Integer.parseInt(fields[0]));
+    public void addAuxiliaryPort(DictionaryAuxiliaryPort port) {
         auxiliaryPortMap.put(port.getId(), port);
     }
 

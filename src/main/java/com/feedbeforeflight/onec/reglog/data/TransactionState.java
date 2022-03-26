@@ -1,4 +1,4 @@
-package com.feedbeforeflight.reglogproducer.logfile;
+package com.feedbeforeflight.onec.reglog.data;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

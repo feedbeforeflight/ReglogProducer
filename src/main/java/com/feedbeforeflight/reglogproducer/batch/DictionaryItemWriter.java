@@ -1,26 +1,27 @@
 package com.feedbeforeflight.reglogproducer.batch;
 
-import com.feedbeforeflight.reglogproducer.dictionary.Dictionary;
+import com.feedbeforeflight.onec.reglog.reader.DictionaryObjectCreator;
+import com.feedbeforeflight.onec.reglog.reader.DictionaryFileRecord;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
-public class DictionaryItemWriter implements ItemWriter<DictionaryItem> {
+public class DictionaryItemWriter implements ItemWriter<DictionaryFileRecord> {
 
-    private final Dictionary dictionary;
+    private final DictionaryObjectCreator dictionaryObjectCreator;
 
-    public DictionaryItemWriter(Dictionary dictionary) {
-        this.dictionary = dictionary;
+    public DictionaryItemWriter(DictionaryObjectCreator dictionaryObjectCreator) {
+        this.dictionaryObjectCreator = dictionaryObjectCreator;
     }
 
     @Override
-    public void write(List<? extends DictionaryItem> list) throws Exception {
+    public void write(List<? extends DictionaryFileRecord> list) throws Exception {
 //        System.out.println("Batch size: " + list.size());
-        for (DictionaryItem dictionaryItem : list) {
+        for (DictionaryFileRecord dictionaryFileRecord : list) {
 //            System.out.println(dictionaryItem.toString());
-            dictionary.addItem(dictionaryItem);
+            dictionaryObjectCreator.addItem(dictionaryFileRecord);
         }
     }
 }

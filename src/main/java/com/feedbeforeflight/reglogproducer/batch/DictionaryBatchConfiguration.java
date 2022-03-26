@@ -1,6 +1,10 @@
 package com.feedbeforeflight.reglogproducer.batch;
 
-import com.feedbeforeflight.reglogproducer.logfile.LogfileFilesList;
+import com.feedbeforeflight.onec.reglog.dictionary.Dictionary;
+import com.feedbeforeflight.onec.reglog.reader.DictionaryFileFieldsMapper;
+import com.feedbeforeflight.onec.reglog.reader.DictionaryFileItemReader;
+import com.feedbeforeflight.onec.reglog.reader.DictionaryFileRecord;
+import com.feedbeforeflight.onec.reglog.reader.DictionaryObjectCreator;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -10,16 +14,12 @@ import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.file.FlatFileItemReader;
-import org.springframework.batch.item.file.mapping.DefaultLineMapper;
-import org.springframework.batch.item.file.separator.RecordSeparatorPolicy;
-import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.FileSystemResource;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Paths;
 
@@ -31,34 +31,33 @@ public class DictionaryBatchConfiguration {
     private String logDirectoryName;
 
     @Bean
-    public ItemReader<DictionaryItem> reader(RecordSeparatorPolicy recordSeparatorPolicy) throws MalformedURLException {
-        FlatFileItemReader<DictionaryItem> reader = new FlatFileItemReader<>();
-        reader.setRecordSeparatorPolicy(recordSeparatorPolicy);
-        reader.setResource(new FileSystemResource(Paths.get(logDirectoryName, "1Cv8.lgf").toString()));
-        reader.setLinesToSkip(2);
+    public Dictionary dictionary() {
+        return new Dictionary();
+    }
 
-        DefaultLineMapper<DictionaryItem> lineMapper = new DefaultLineMapper<>();
-        lineMapper.setLineTokenizer(new DelimitedLineTokenizer(DelimitedLineTokenizer.DELIMITER_COMMA));
-        lineMapper.setFieldSetMapper(new DictionaryItemFieldSetMapper());
+    @Bean
+    public DictionaryObjectCreator dictionaryObjectCreator(Dictionary dictionary) {
+        return new DictionaryObjectCreator(dictionary);
+    }
 
-        reader.setLineMapper(lineMapper);
+    @Bean
+    public DictionaryFileItemReader dictionaryFileItemReader() throws IOException {
+        DictionaryFileItemReader dictionaryFileItemReader = new DictionaryFileItemReader(Paths.get(logDirectoryName, "1Cv8.lgf").toString());
+        dictionaryFileItemReader.openFile();
+        return dictionaryFileItemReader;
+    }
+
+    @Bean
+    public ItemReader<DictionaryFileRecord> reader(DictionaryFileItemReader dictionaryFileItemReader,
+                                                   DictionaryObjectCreator dictionaryObjectCreator) throws MalformedURLException {
+        ItemReader<DictionaryFileRecord> reader = () -> DictionaryFileFieldsMapper.mapFields(dictionaryFileItemReader.read());
 
         return reader;
     }
 
     @Bean
-    public RecordSeparatorPolicy recordSeparatorPolicy() {
-        return new DictionaryItemSeparatorPolicy();
-    }
-
-    @Bean
-    public ItemProcessor<DictionaryItem, DictionaryItem> processor() {
+    public ItemProcessor<DictionaryFileRecord, DictionaryFileRecord> processor() {
         return dictionaryRecord -> dictionaryRecord;
-    }
-
-    @Bean
-    public ItemProcessor<LogfileItem, LogfileItem> logFileItemProcessor() {
-        return logfileItem -> logfileItem;
     }
 
     @Bean
@@ -71,11 +70,11 @@ public class DictionaryBatchConfiguration {
     }
 
     @Bean
-    public Step loadDictionaryStep(StepBuilderFactory stepBuilderFactory, ItemReader<DictionaryItem> itemReader,
-                                   ItemWriter<DictionaryItem> itemWriter, ItemProcessor<DictionaryItem, DictionaryItem> itemProcessor,
+    public Step loadDictionaryStep(StepBuilderFactory stepBuilderFactory, ItemReader<DictionaryFileRecord> itemReader,
+                                   ItemWriter<DictionaryFileRecord> itemWriter, ItemProcessor<DictionaryFileRecord, DictionaryFileRecord> itemProcessor,
                                    DictionaryLoadCompleteListener listener) {
         return stepBuilderFactory.get("loadDictionaryStep")
-                .<DictionaryItem, DictionaryItem>chunk(10)
+                .<DictionaryFileRecord, DictionaryFileRecord>chunk(10)
                 .reader(itemReader)
                 .processor(itemProcessor)
                 .writer(itemWriter)

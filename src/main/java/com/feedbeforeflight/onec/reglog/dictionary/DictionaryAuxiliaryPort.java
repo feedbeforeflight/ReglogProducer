@@ -1,4 +1,4 @@
-package com.feedbeforeflight.reglogproducer.dictionary;
+package com.feedbeforeflight.onec.reglog.dictionary;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

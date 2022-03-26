@@ -1,9 +1,9 @@
 package com.feedbeforeflight.reglogproducer.batch;
 
+import com.feedbeforeflight.onec.reglog.dictionary.*;
 import com.feedbeforeflight.reglogproducer.LogfileUtils;
-import com.feedbeforeflight.reglogproducer.dictionary.*;
-import com.feedbeforeflight.reglogproducer.logfile.LogfileEventImportance;
-import com.feedbeforeflight.reglogproducer.logfile.TransactionState;
+import com.feedbeforeflight.onec.reglog.data.LogfileEventImportance;
+import com.feedbeforeflight.onec.reglog.data.TransactionState;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.file.transform.FieldSet;
 

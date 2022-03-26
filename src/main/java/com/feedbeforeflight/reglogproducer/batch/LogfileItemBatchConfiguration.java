@@ -1,6 +1,6 @@
 package com.feedbeforeflight.reglogproducer.batch;
 
-import com.feedbeforeflight.reglogproducer.dictionary.Dictionary;
+import com.feedbeforeflight.onec.reglog.dictionary.Dictionary;
 import com.feedbeforeflight.reglogproducer.elastic.LogEntryRepository;
 import com.feedbeforeflight.reglogproducer.logfile.LogfileDescription;
 import com.feedbeforeflight.reglogproducer.logfile.LogfileFilesList;

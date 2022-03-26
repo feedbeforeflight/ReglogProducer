@@ -1,9 +1,12 @@
 package com.feedbeforeflight.reglogproducer.elastic;
 
+import lombok.Getter;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.TrustAllStrategy;
 import org.apache.http.ssl.SSLContexts;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.inject.name.Named;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;

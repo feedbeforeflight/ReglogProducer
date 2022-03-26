@@ -2,68 +2,26 @@ package com.feedbeforeflight.reglogproducer.batch;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.feedbeforeflight.reglogproducer.logfile.LogfileEventImportance;
-import com.feedbeforeflight.reglogproducer.logfile.TransactionState;
+import com.feedbeforeflight.onec.reglog.data.AbstractLogfileItem;
+import com.feedbeforeflight.onec.reglog.data.LogfileEventImportance;
+import com.feedbeforeflight.onec.reglog.data.TransactionState;
 import lombok.Getter;
 import lombok.Setter;
 
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 
 import java.util.Date;
 
 @JsonAutoDetect
-@Document(indexName = "${elastic-index-name}")
-public class LogfileItem {
+@PropertySource("classpath:application.properties")
+@Document(indexName = "#{@environment.getProperty('elastic-index-name')}")
+public class LogfileItem extends AbstractLogfileItem {
 
     @Getter @Setter
     @Id
     private String id; // format: [filename without extension].[row number]
-
-    @Getter @Setter
-    private String databaseName;
-    @Getter @Setter
-    private Date timestamp;
-    @Getter @Setter
-    private TransactionState transactionState;
-    @Getter @Setter
-    private Date transactionDate;
-    @Getter @Setter
-    private int transactionNumber = 0;
-
-    @Getter @Setter
-    private String userGUID;
-    @Getter @Setter
-    private String username;
-    @Getter @Setter
-    private String computer;
-    @Getter @Setter
-    private String application;
-    @Getter @Setter
-    private int connection;
-    @Getter @Setter
-    private String event;
-    @Getter @Setter
-    private LogfileEventImportance eventImportance;
-    @Getter @Setter
-    private String comment;
-
-    @Getter @Setter
-    private String metadataGUID;
-    @Getter @Setter
-    private String metadata;
-    @Getter @Setter
-    private String data;
-    @Getter @Setter
-    private String dataRepresentation;
-    @Getter @Setter
-    private String server;
-    @Getter @Setter
-    private int mainPort;
-    @Getter @Setter
-    private int auxiliaryPort;
-    @Getter @Setter
-    private int session;
 
     @JsonIgnore
     public void createId(String fileName, int rowNumber) {
@@ -71,6 +29,7 @@ public class LogfileItem {
     }
 
     @JsonIgnore
+    @Override
     public String toString() {
         return id + ", "+
                 timestamp.toString() + ", " +
