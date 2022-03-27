@@ -48,11 +48,8 @@ public class DictionaryBatchConfiguration {
     }
 
     @Bean
-    public ItemReader<DictionaryFileRecord> reader(DictionaryFileItemReader dictionaryFileItemReader,
-                                                   DictionaryObjectCreator dictionaryObjectCreator) throws MalformedURLException {
-        ItemReader<DictionaryFileRecord> reader = () -> DictionaryFileFieldsMapper.mapFields(dictionaryFileItemReader.read());
-
-        return reader;
+    public ItemReader<DictionaryFileRecord> reader(DictionaryFileItemReader dictionaryFileItemReader) {
+        return () -> DictionaryFileFieldsMapper.mapFields(dictionaryFileItemReader.read());
     }
 
     @Bean

@@ -1,9 +1,12 @@
 package com.feedbeforeflight.reglogproducer.batch;
 
 import com.feedbeforeflight.onec.reglog.dictionary.Dictionary;
+import com.feedbeforeflight.onec.reglog.reader.LogFileFieldsMapper;
+import com.feedbeforeflight.onec.reglog.reader.LogFileItemReader;
 import com.feedbeforeflight.reglogproducer.elastic.LogEntryRepository;
 import com.feedbeforeflight.reglogproducer.logfile.LogfileDescription;
 import com.feedbeforeflight.reglogproducer.logfile.LogfileFilesList;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -12,9 +15,7 @@ import org.springframework.batch.core.configuration.annotation.StepBuilderFactor
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.*;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,6 +24,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,6 +32,7 @@ import java.util.List;
 
 @Configuration
 @EnableBatchProcessing
+@Slf4j
 public class LogfileItemBatchConfiguration {
 
     private ApplicationContext applicationContext;
@@ -43,17 +46,17 @@ public class LogfileItemBatchConfiguration {
     private int timezone;
     @Value("${database-name}")
     private String databaseName;
+    @Value("${chunk-size:1000}")
+    private int chunkSize;
 
     public LogfileItemBatchConfiguration(StepBuilderFactory stepBuilderFactory, Dictionary dictionary) {
         this.stepBuilderFactory = stepBuilderFactory;
         this.dictionary = dictionary;
-//        this.logEntryRepository = logEntryRepository;
     }
 
     @Bean("loadLogfilesJob")
-    public Job loadLogfilesJob(JobBuilderFactory jobs, LogfileFilesList logfileFilesList) throws MalformedURLException {
+    public Job loadLogfilesJob(JobBuilderFactory jobs, LogfileFilesList logfileFilesList) throws IOException {
 
-//        logfileFilesList.init();
         List<LogfileDescription> fileDescriptionListToLoad = logfileFilesList.getFileDescriptionListToLoad();
         if (fileDescriptionListToLoad.size() == 0) {
             return null;
@@ -68,9 +71,12 @@ public class LogfileItemBatchConfiguration {
         return simpleJobBuilder.build();
     }
 
-    private Step getLoadLogfileStep(LogfileDescription logfileDescription) throws MalformedURLException {
+    private Step getLoadLogfileStep(LogfileDescription logfileDescription) throws IOException {
+        log.info("Building loading step for file " + logfileDescription.getFilePath().getFileName());
+        log.info("With chunk size " + chunkSize);
+
         return stepBuilderFactory.get("loadLogfileStep")
-                .<LogfileItem, LogfileItem>chunk(10)
+                .<LogfileItem, LogfileItem>chunk(chunkSize)
                 .reader(createReader(logfileDescription.getFilePath().toString(), logfileDescription.getItemsProcessed()))
                 .processor(createItemProcessor())
                 .writer(createItemWriter())
@@ -78,24 +84,28 @@ public class LogfileItemBatchConfiguration {
                 .build();
     }
 
-    private ItemReader<LogfileItem> createReader(String filename, int skipItems) throws MalformedURLException {
-        FlatFileItemReader<LogfileItem> reader = new FlatFileItemReader<>();
-        reader.setRecordSeparatorPolicy(new LogfileItemSeparatorPolicy());
-        reader.setResource(new FileSystemResource(filename));
-        reader.setLinesToSkip(3 + skipItems);
-
+    private ItemReader<LogfileItem> createReader(String filename, int skipItems) throws IOException {
+//        FlatFileItemReader<LogfileItem> reader = new FlatFileItemReader<>();
+//        reader.setRecordSeparatorPolicy(new LogfileItemSeparatorPolicy());
+//        reader.setResource(new FileSystemResource(filename));
+//        reader.setLinesToSkip(3 + skipItems);
+//
         Path path = Paths.get(filename).getFileName();
-        RowNumberAwareLineMapper<LogfileItem> lineMapper = new RowNumberAwareLineMapper<>();
-        lineMapper.setLineTokenizer(new LogfileLineTokenizer());
-        lineMapper.setFieldSetMapper(new LogfileItemFieldSetMapper(dictionary, timezone, databaseName, dropExtension(path.toString())));
+//        RowNumberAwareLineMapper<LogfileItem> lineMapper = new RowNumberAwareLineMapper<>();
+//        lineMapper.setLineTokenizer(new LogfileLineTokenizer());
+//        lineMapper.setFieldSetMapper(new LogfileItemFieldSetMapper(dictionary, timezone, databaseName, dropExtension(path.toString())));
+//
+//        reader.setLineMapper(lineMapper);
 
-        reader.setLineMapper(lineMapper);
+        LogFileItemReader logFileItemReader = new LogFileItemReader(filename);
+        logFileItemReader.openFile();
+        LogFileFieldsMapper logFileFieldsMapper = new LogFileFieldsMapper(dictionary, timezone, databaseName, dropExtension(path.toString()));
 
-        return reader;
+        return () -> logFileFieldsMapper.mapFields(logFileItemReader.read(), logFileItemReader.getLineNumber());
     }
 
     private String dropExtension(String filename) {
-        if (filename == null) return filename;
+        if (filename == null) return null;
 
         int dotPosition = filename.lastIndexOf(".");
         if (dotPosition == -1) return filename;

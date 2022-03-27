@@ -18,9 +18,7 @@ public class DictionaryItemWriter implements ItemWriter<DictionaryFileRecord> {
 
     @Override
     public void write(List<? extends DictionaryFileRecord> list) throws Exception {
-//        System.out.println("Batch size: " + list.size());
         for (DictionaryFileRecord dictionaryFileRecord : list) {
-//            System.out.println(dictionaryItem.toString());
             dictionaryObjectCreator.addItem(dictionaryFileRecord);
         }
     }
