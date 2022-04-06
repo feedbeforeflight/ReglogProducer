@@ -5,7 +5,14 @@ import lombok.Setter;
 
 import java.util.Date;
 
-public abstract class AbstractLogfileItem {
+public class LogFileItem {
+
+    @Getter
+    @Setter
+    protected String fileName;
+    @Getter
+    @Setter
+    protected int rowNumber;
     @Getter
     @Setter
     protected Date timestamp;

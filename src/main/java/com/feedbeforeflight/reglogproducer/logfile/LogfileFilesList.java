@@ -35,7 +35,14 @@ public class LogfileFilesList {
     }
 
     @PostConstruct
-    private void init() {
+    private void init() throws IOException {
+        if (logDirectoryName.isEmpty()) {
+            throw (new IOException("Log directory name should not be empty"));
+        }
+        if (workDirectoryName.isEmpty()) {
+            throw (new IOException("Work directory name should not be empty"));
+        }
+
         Path logDirectoryPath = Paths.get(logDirectoryName);
         try (Stream<Path> pathStream = Files.find(logDirectoryPath, 1, (p, attr) -> p.getFileName().toString().endsWith(".lgp"))) {
             pathStream.forEach(this::appendLogfile);

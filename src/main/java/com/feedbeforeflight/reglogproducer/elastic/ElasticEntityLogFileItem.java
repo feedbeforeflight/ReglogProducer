@@ -1,10 +1,8 @@
-package com.feedbeforeflight.reglogproducer.batch;
+package com.feedbeforeflight.reglogproducer.elastic;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.feedbeforeflight.onec.reglog.data.AbstractLogfileItem;
-import com.feedbeforeflight.onec.reglog.data.LogfileEventImportance;
-import com.feedbeforeflight.onec.reglog.data.TransactionState;
+import com.feedbeforeflight.onec.reglog.data.LogFileItem;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,12 +10,10 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 
-import java.util.Date;
-
 @JsonAutoDetect
 @PropertySource("classpath:application.properties")
 @Document(indexName = "#{@environment.getProperty('elastic-index-name')}")
-public class LogfileItem extends AbstractLogfileItem {
+public class ElasticEntityLogFileItem extends LogFileItem {
 
     @Getter @Setter
     @Id

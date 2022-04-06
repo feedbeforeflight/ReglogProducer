@@ -4,6 +4,7 @@ import com.feedbeforeflight.onec.reglog.dictionary.*;
 import com.feedbeforeflight.reglogproducer.LogfileUtils;
 import com.feedbeforeflight.onec.reglog.data.LogfileEventImportance;
 import com.feedbeforeflight.onec.reglog.data.TransactionState;
+import com.feedbeforeflight.reglogproducer.elastic.ElasticEntityLogFileItem;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.file.transform.FieldSet;
 
@@ -13,7 +14,7 @@ import java.util.Date;
 
 
 @Slf4j
-public class LogfileItemFieldSetMapper implements RowNumberAwareFieldSetMapper<LogfileItem> {
+public class LogfileItemFieldSetMapper implements RowNumberAwareFieldSetMapper<ElasticEntityLogFileItem> {
 
     private final SimpleDateFormat simpleDateFormat;
     private final Dictionary dictionary;
@@ -33,8 +34,8 @@ public class LogfileItemFieldSetMapper implements RowNumberAwareFieldSetMapper<L
     }
 
     @Override
-    public LogfileItem mapFieldSet(FieldSet fieldSet, int rowNumber) {
-        LogfileItem result = new LogfileItem();
+    public ElasticEntityLogFileItem mapFieldSet(FieldSet fieldSet, int rowNumber) {
+        ElasticEntityLogFileItem result = new ElasticEntityLogFileItem();
         result.createId(logfileName, rowNumber);
         result.setDatabaseName(databaseName);
 

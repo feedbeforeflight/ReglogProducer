@@ -3,7 +3,8 @@ package com.feedbeforeflight.reglogproducer.batch;
 import com.feedbeforeflight.onec.reglog.dictionary.Dictionary;
 import com.feedbeforeflight.onec.reglog.reader.LogFileFieldsMapper;
 import com.feedbeforeflight.onec.reglog.reader.LogFileItemReader;
-import com.feedbeforeflight.reglogproducer.elastic.LogEntryRepository;
+import com.feedbeforeflight.reglogproducer.LogFileItemRepository;
+import com.feedbeforeflight.reglogproducer.elastic.ElasticEntityLogFileItem;
 import com.feedbeforeflight.reglogproducer.logfile.LogfileDescription;
 import com.feedbeforeflight.reglogproducer.logfile.LogfileFilesList;
 import lombok.extern.slf4j.Slf4j;
@@ -16,16 +17,12 @@ import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.*;
-import org.springframework.batch.item.file.FlatFileItemReader;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.FileSystemResource;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -38,9 +35,7 @@ public class LogfileItemBatchConfiguration {
     private ApplicationContext applicationContext;
     private final StepBuilderFactory stepBuilderFactory;
     private final Dictionary dictionary;
-
-    @Autowired
-    private LogEntryRepository logEntryRepository;
+    private final LogFileItemRepository logFileItemRepository;
 
     @Value("${timezone}")
     private int timezone;
@@ -49,9 +44,10 @@ public class LogfileItemBatchConfiguration {
     @Value("${chunk-size:1000}")
     private int chunkSize;
 
-    public LogfileItemBatchConfiguration(StepBuilderFactory stepBuilderFactory, Dictionary dictionary) {
+    public LogfileItemBatchConfiguration(StepBuilderFactory stepBuilderFactory, Dictionary dictionary, LogFileItemRepository logFileItemRepository) {
         this.stepBuilderFactory = stepBuilderFactory;
         this.dictionary = dictionary;
+        this.logFileItemRepository = logFileItemRepository;
     }
 
     @Bean("loadLogfilesJob")
@@ -76,7 +72,7 @@ public class LogfileItemBatchConfiguration {
         log.info("With chunk size " + chunkSize);
 
         return stepBuilderFactory.get("loadLogfileStep")
-                .<LogfileItem, LogfileItem>chunk(chunkSize)
+                .<ElasticEntityLogFileItem, ElasticEntityLogFileItem>chunk(chunkSize)
                 .reader(createReader(logfileDescription.getFilePath().toString(), logfileDescription.getItemsProcessed()))
                 .processor(createItemProcessor())
                 .writer(createItemWriter())
@@ -84,7 +80,7 @@ public class LogfileItemBatchConfiguration {
                 .build();
     }
 
-    private ItemReader<LogfileItem> createReader(String filename, int skipItems) throws IOException {
+    private ItemReader<ElasticEntityLogFileItem> createReader(String filename, int skipItems) throws IOException {
 //        FlatFileItemReader<LogfileItem> reader = new FlatFileItemReader<>();
 //        reader.setRecordSeparatorPolicy(new LogfileItemSeparatorPolicy());
 //        reader.setResource(new FileSystemResource(filename));
@@ -99,9 +95,10 @@ public class LogfileItemBatchConfiguration {
 
         LogFileItemReader logFileItemReader = new LogFileItemReader(filename);
         logFileItemReader.openFile();
-        LogFileFieldsMapper logFileFieldsMapper = new LogFileFieldsMapper(dictionary, timezone, databaseName, dropExtension(path.toString()));
+        LogFileFieldsMapper logFileFieldsMapper = new LogFileFieldsMapper(dictionary,
+                timezone, databaseName, dropExtension(path.toString()), ElasticEntityLogFileItem::new);
 
-        return () -> logFileFieldsMapper.mapFields(logFileItemReader.read(), logFileItemReader.getLineNumber());
+        return () -> (ElasticEntityLogFileItem) logFileFieldsMapper.mapFields(logFileItemReader.read(), logFileItemReader.getLineNumber());
     }
 
     private String dropExtension(String filename) {
@@ -113,12 +110,12 @@ public class LogfileItemBatchConfiguration {
         return filename.substring(0, dotPosition);
     }
 
-    private ItemProcessor<LogfileItem, LogfileItem> createItemProcessor() {
+    private ItemProcessor<ElasticEntityLogFileItem, ElasticEntityLogFileItem> createItemProcessor() {
         return logfileItem -> logfileItem;
     }
 
-    private ItemWriter<LogfileItem> createItemWriter() {
-        return new LogFileItemWriter(logEntryRepository);
+    private ItemWriter<ElasticEntityLogFileItem> createItemWriter() {
+        return new LogFileItemWriter(logFileItemRepository);
     }
 
 }

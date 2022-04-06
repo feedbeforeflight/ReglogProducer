@@ -27,6 +27,9 @@ public class LogFileItemReader extends AbstractLogFileReader {
         StringBuilder result = new StringBuilder();
 
         String newLine = reader.readLine();
+        if (newLine == null) {
+            return null;
+        }
         result.append(newLine);
 
         while (newLine != null) {

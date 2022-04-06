@@ -1,5 +1,6 @@
 package com.feedbeforeflight.reglogproducer.batch;
 
+import com.feedbeforeflight.reglogproducer.elastic.ElasticEntityLogFileItem;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,7 +17,7 @@ public class RowNumberAwareLineMapper<T> implements LineMapper<T>, InitializingB
     @Getter @Setter
     private RowNumberAwareFieldSetMapper<T> fieldSetMapper;
 
-    private LogfileItem logfileItem;
+    private ElasticEntityLogFileItem elasticEntityLogFileItem;
 
     public T mapLine(String line, int lineNumber) throws Exception {
         return this.fieldSetMapper.mapFieldSet(this.lineTokenizer.tokenize(line), lineNumber);

@@ -1,12 +1,12 @@
 package com.feedbeforeflight.onec.reglog.reader;
 
+import com.feedbeforeflight.onec.reglog.data.LogFileItem;
+import com.feedbeforeflight.onec.reglog.data.LogFileItemFactory;
 import com.feedbeforeflight.onec.reglog.data.LogfileEventImportance;
 import com.feedbeforeflight.onec.reglog.data.TransactionState;
 import com.feedbeforeflight.onec.reglog.dictionary.*;
 import com.feedbeforeflight.reglogproducer.LogfileUtils;
-import com.feedbeforeflight.reglogproducer.batch.LogfileItem;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.batch.item.file.transform.FieldSet;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -22,20 +22,27 @@ public class LogFileFieldsMapper {
     private final long timezoneMilliseconds;
     private final String databaseName;
     private final String logfileName;
+    private LogFileItemFactory itemFactory;
 
-    public LogFileFieldsMapper(Dictionary dictionary, int timeZoneone, String databaseName, String logfileName) {
+    public LogFileFieldsMapper(Dictionary dictionary, int timeZone, String databaseName, String logfileName, LogFileItemFactory itemFactory) {
         this.dictionary = dictionary;
         this.timeZone = timeZone;
         this.logfileName = logfileName;
         this.databaseName = databaseName;
+        this.itemFactory = itemFactory;
 
         timezoneMilliseconds = timeZone * 3600000L;
         simpleDateFormat = new SimpleDateFormat("yyyyMMddkkmmss");
     }
 
-    public LogfileItem mapFields(List<String> fieldSet, int rowNumber) {
-        LogfileItem result = new LogfileItem();
-        result.createId(logfileName, rowNumber);
+    public LogFileItem mapFields(List<String> fieldSet, int rowNumber) {
+        if (fieldSet == null) {
+            return null;
+        }
+
+        LogFileItem result = itemFactory.createLogFileItem();
+        result.setFileName(logfileName);
+        result.setRowNumber(rowNumber);
         result.setDatabaseName(databaseName);
 
         // 1) Дата и время в формате "yyyyMMddHHmmss", легко превращается в дату функцией Дата();

@@ -1,12 +1,11 @@
 package com.feedbeforeflight.reglogproducer.elastic;
 
-import lombok.Getter;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import com.feedbeforeflight.reglogproducer.LogFileItemRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.conn.ssl.TrustAllStrategy;
 import org.apache.http.ssl.SSLContexts;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.common.inject.name.Named;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -17,14 +16,16 @@ import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 
 import javax.net.ssl.SSLContext;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 
 @Configuration
-@EnableElasticsearchRepositories
+@ConditionalOnProperty(
+        name = "target-database",
+        havingValue = "elasticsearch"
+)
+@EnableElasticsearchRepositories()
 @ComponentScan
-public class ElasticConfiguration {
+@Slf4j
+public class ElasticRepositoryConfiguration {
 
     @Bean
     public RestHighLevelClient elasticClient() throws Exception {
@@ -45,6 +46,12 @@ public class ElasticConfiguration {
     @Bean
     public ElasticsearchOperations elasticsearchTemplate() throws Exception {
         return new ElasticsearchRestTemplate(elasticClient());
+    }
+
+    @Bean
+    public LogFileItemRepository elasticsearchRepository(ElasticLogEntryRepository logEntryRepository) {
+        log.info("Starting up Elasticsearch repository");
+        return new ElasticLogEntryRepositoryAdapter(logEntryRepository);
     }
 
 }
