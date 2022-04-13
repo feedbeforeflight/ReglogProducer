@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public class LogFileItemWriter implements ItemWriter<ElasticEntityLogFileItem> {
+public class LogFileItemWriter implements ItemWriter<LogFileItem> {
 
     private AbstractRepository<LogFileItem> logFileItemRepository;
 
@@ -23,7 +23,7 @@ public class LogFileItemWriter implements ItemWriter<ElasticEntityLogFileItem> {
     }
 
     @Override
-    public void write(List<? extends ElasticEntityLogFileItem> list) throws Exception {
+    public void write(List<? extends LogFileItem> list) throws Exception {
 //        list.stream().forEach(i-> System.out.println(i.toString()));
 //        List<LogfileItem> logfileItems = new ArrayList<>();
 ////        list.stream().forEach(i->logEntryRepository.save(new LogEntry(i.toString())));

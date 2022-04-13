@@ -1,5 +1,7 @@
 package com.feedbeforeflight.reglogproducer.elastic;
 
+import com.feedbeforeflight.onec.reglog.data.LogFileItem;
+import com.feedbeforeflight.onec.reglog.data.LogFileItemFactory;
 import com.feedbeforeflight.reglogproducer.LogFileItemRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.conn.ssl.TrustAllStrategy;
@@ -52,6 +54,11 @@ public class ElasticRepositoryConfiguration {
     public LogFileItemRepository elasticsearchRepository(ElasticLogEntryRepository logEntryRepository) {
         log.info("Starting up Elasticsearch repository");
         return new ElasticLogEntryRepositoryAdapter(logEntryRepository);
+    }
+
+    @Bean
+    public LogFileItemFactory logFileItemFactory() {
+        return () -> new ElasticEntityLogFileItem();
     }
 
 }

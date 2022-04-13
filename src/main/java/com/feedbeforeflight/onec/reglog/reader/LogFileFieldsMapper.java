@@ -7,11 +7,14 @@ import com.feedbeforeflight.onec.reglog.data.TransactionState;
 import com.feedbeforeflight.onec.reglog.dictionary.*;
 import com.feedbeforeflight.reglogproducer.LogfileUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.Assert;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.function.BinaryOperator;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class LogFileFieldsMapper {
@@ -37,6 +40,12 @@ public class LogFileFieldsMapper {
 
     public LogFileItem mapFields(List<String> fieldSet, int rowNumber) {
         if (fieldSet == null) {
+            return null;
+        }
+
+        if (fieldSet.size() < 17) {
+            log.error(String.join(",", fieldSet));
+            log.error("At row: " + String.valueOf(rowNumber));
             return null;
         }
 
@@ -73,7 +82,7 @@ public class LogFileFieldsMapper {
 
         // 5) Компьютер – указывается номер в массиве компьютеров;
         DictionaryComputer computer = dictionary.getComputer(Integer.parseInt(fieldSet.get(4)));
-        result.setUsername(computer == null ? "" : computer.Presentation());
+        result.setComputer(computer == null ? "" : computer.Presentation());
 
         // 6) Приложение – указывается номер в массиве приложений;
         DictionaryApplication application = dictionary.getApplication(Integer.parseInt(fieldSet.get(5)));
@@ -102,7 +111,7 @@ public class LogFileFieldsMapper {
         result.setData(fieldSet.get(11));
 
         // 13) Представление данных – текст в кавычках;
-        result.setData(fieldSet.get(12));
+        result.setDataRepresentation(fieldSet.get(12));
 
         // 14) Сервер – указывается номер в массиве серверов;
         DictionaryServer server = dictionary.getServer(Integer.parseInt(fieldSet.get(13)));

@@ -20,7 +20,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.nio.file.Paths;
 
 @Configuration
@@ -49,7 +48,7 @@ public class DictionaryBatchConfiguration {
 
     @Bean
     public ItemReader<DictionaryFileRecord> reader(DictionaryFileItemReader dictionaryFileItemReader) {
-        return () -> DictionaryFileFieldsMapper.mapFields(dictionaryFileItemReader.read());
+        return () -> DictionaryFileFieldsMapper.mapFields(dictionaryFileItemReader.readTokenizedLine());
     }
 
     @Bean

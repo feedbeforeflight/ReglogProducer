@@ -31,10 +31,6 @@ public abstract class AbstractLogFileReader {
         Assert.hasText(fileName, "File name must be set");
 
         reader = new LineNumberReader(new FileReader(fileName));
-
-        // skip 2 non-significant leading lines
-//        reader.readLine();
-//        reader.readLine();
     }
 
     public void closeFile() throws IOException {
@@ -43,7 +39,7 @@ public abstract class AbstractLogFileReader {
         }
     }
 
-    public List<String> read() throws IOException {
+    public List<String> readTokenizedLine() throws IOException {
         Assert.notNull(reader, "File must be opened before read");
 
         String line = readSeparatedLine();

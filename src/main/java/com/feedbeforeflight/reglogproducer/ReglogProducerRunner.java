@@ -44,7 +44,6 @@ public class ReglogProducerRunner implements CommandLineRunner, ApplicationConte
     @Override
     public void run(String... args) throws Exception {
         log.info("Run, Forrest, run...");
-        log.info("Elastic index name: " + elasticIndexName);
 
         if (filesList.getFileDescriptionListToLoad().size() == 0) {
             log.info("Nothing to read. Exit.");

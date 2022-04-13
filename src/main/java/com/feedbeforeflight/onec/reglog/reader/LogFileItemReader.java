@@ -26,28 +26,31 @@ public class LogFileItemReader extends AbstractLogFileReader {
     protected String readSeparatedLine() throws IOException {
         StringBuilder result = new StringBuilder();
 
-        String newLine = reader.readLine();
-        if (newLine == null) {
-            return null;
-        }
-        result.append(newLine);
+        int openCount = 0;
+        int closeCount = 0;
 
-        while (newLine != null) {
+        String newLine;
+        do {
             newLine = reader.readLine();
             if (newLine != null) {
+                for (int i = 0; i < newLine.length(); i++) {
+                    if (newLine.charAt(i) == '{') { openCount++; }
+                    else if (newLine.charAt(i) == '}') { closeCount++; }
+                }
+
                 result.append(newLine);
-                if (newLine.equals("},")) {
+                if (openCount == closeCount) {
                     break;
                 }
             }
-        }
+        } while (newLine != null);
 
-        return result.toString();
+        return result.length() == 0 ? null : result.toString();
     }
 
     @Override
     protected List<String> tokenize(String line) {
-        List<String> tokens = new ArrayList();
+        List<String> tokens = new ArrayList<>();
 
         int start = 1;
         boolean inParenthesis = false;
@@ -66,7 +69,7 @@ public class LogFileItemReader extends AbstractLogFileReader {
             }
             else if (currentChar == '}' && !inQuotes) {
                 parenthesisCount--;
-                inParenthesis = parenthesisCount == 0 ? false : true;
+                inParenthesis = parenthesisCount != 0;
             }
             else if (currentChar == '"') {
                 if (line.charAt(i + 1) == '"') { // double quotes
@@ -78,7 +81,7 @@ public class LogFileItemReader extends AbstractLogFileReader {
                 }
             }
         }
-        tokens.add(line.substring(start, line.length() - 2));
+        tokens.add(line.substring(start, line.length() - (line.charAt(line.length() - 1) == ',' ? 2 : 1)));
 
         return tokens;
     }

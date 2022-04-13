@@ -11,7 +11,7 @@ public class LogfileLineTokenizer extends AbstractLineTokenizer {
 
     @Override
     protected List<String> doTokenize(String logLine) {
-        List<String> tokens = new ArrayList();
+        List<String> tokens = new ArrayList<>();
 
         int start = 1;
         boolean inParenthesis = false;
@@ -30,7 +30,7 @@ public class LogfileLineTokenizer extends AbstractLineTokenizer {
             }
             else if (currentChar == '}' && !inQuotes) {
                 parenthesisCount--;
-                inParenthesis = parenthesisCount == 0 ? false : true;
+                inParenthesis = parenthesisCount != 0;
             }
             else if (currentChar == '"') {
                 if (logLine.charAt(i + 1) == '"') { // double quotes
