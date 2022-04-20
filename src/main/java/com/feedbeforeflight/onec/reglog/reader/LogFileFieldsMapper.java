@@ -38,6 +38,11 @@ public class LogFileFieldsMapper {
         simpleDateFormat = new SimpleDateFormat("yyyyMMddkkmmss");
     }
 
+    private String removeQuotes(String string) {
+        if (string.equals("\"\"")) { return new String(); }
+        else { return string.substring(1, string.length() - 1); }
+    }
+
     public LogFileItem mapFields(List<String> fieldSet, int rowNumber) {
         if (fieldSet == null) {
             return null;
@@ -77,45 +82,45 @@ public class LogFileFieldsMapper {
 
         // 4) Пользователь – указывается номер в массиве пользователей;
         DictionaryUser user = dictionary.getUser(Integer.parseInt(fieldSet.get(3)));
-        result.setUsername(user == null ? "" : user.Presentation());
+        result.setUsername(user == null ? "" : removeQuotes(user.Presentation()));
         result.setUserGUID(user == null ? "" : user.getGuid());
 
         // 5) Компьютер – указывается номер в массиве компьютеров;
         DictionaryComputer computer = dictionary.getComputer(Integer.parseInt(fieldSet.get(4)));
-        result.setComputer(computer == null ? "" : computer.Presentation());
+        result.setComputer(computer == null ? "" : removeQuotes(computer.Presentation()));
 
         // 6) Приложение – указывается номер в массиве приложений;
         DictionaryApplication application = dictionary.getApplication(Integer.parseInt(fieldSet.get(5)));
-        result.setApplication(application == null ? "" : application.Presentation());
+        result.setApplication(application == null ? "" : removeQuotes(application.Presentation()));
 
         // 7) Соединение – номер соединения;
         result.setConnection(Integer.parseInt(fieldSet.get(6)));
 
         // 8) Событие – указывается номер в массиве событий;
         DictionaryEvent event = dictionary.getEvent(Integer.parseInt(fieldSet.get(7)));
-        result.setEvent(event == null ? "" : event.Presentation());
+        result.setEvent(event == null ? "" : removeQuotes(event.Presentation()));
 
         // 9) Важность – может принимать четыре значения – "I" – "Информация", "E" – "Ошибки",
         // "W" – "Предупреждения" и "N" – "Примечания";
         result.setEventImportance(LogfileEventImportance.getByLogID(fieldSet.get(8)));
 
         // 10) Комментарий – любой текст в кавычках;
-        result.setComment(fieldSet.get(9));
+        result.setComment(removeQuotes(fieldSet.get(9)));
 
         // 11) Метаданные – указывается номер в массиве метаданных;
         DictionaryMetadata dictionaryMetadata= dictionary.getMetadata(Integer.parseInt(fieldSet.get(10)));
-        result.setMetadata(dictionaryMetadata == null ? "" : dictionaryMetadata.Presentation());
+        result.setMetadata(dictionaryMetadata == null ? "" : removeQuotes(dictionaryMetadata.Presentation()));
         result.setMetadataGUID(dictionaryMetadata == null ? "" : dictionaryMetadata.getGuid());
 
         // 12) Данные – самый хитрый элемент, содержащий вложенную запись;
         result.setData(fieldSet.get(11));
 
         // 13) Представление данных – текст в кавычках;
-        result.setDataRepresentation(fieldSet.get(12));
+        result.setDataRepresentation(removeQuotes(fieldSet.get(12)));
 
         // 14) Сервер – указывается номер в массиве серверов;
         DictionaryServer server = dictionary.getServer(Integer.parseInt(fieldSet.get(13)));
-        result.setServer(server == null ? "" : server.Presentation());
+        result.setServer(server == null ? "" : removeQuotes(server.Presentation()));
 
         // 15) Основной порт – указывается номер в массиве основных портов;
         DictionaryMainPort mainPort = dictionary.getMainPort(Integer.parseInt(fieldSet.get(14)));

@@ -39,7 +39,7 @@ public class ClickhouseRepositoryConfiguration {
     @Bean
     public LogFileItemRepository clickhouseRepository(JdbcTemplate jdbcTemplate) {
         log.info("Starting up Clickhouse repository");
-        return new ClickhouseLogEntryRepositoryAdapter(jdbcTemplate, tableName);
+        return new ClickhouseLogEntryRepositoryAdapter(jdbcTemplate, databaseName, tableName);
     }
 
     //@Bean
@@ -60,7 +60,7 @@ public class ClickhouseRepositoryConfiguration {
 
     @Bean
     LogFileItemFactory logFileItemFactory() {
-        return () -> new ClickhouseEntityLogFileItem();
+        return ClickhouseEntityLogFileItem::new;
     }
 
 

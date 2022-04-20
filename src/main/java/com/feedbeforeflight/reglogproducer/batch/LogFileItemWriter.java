@@ -1,8 +1,7 @@
 package com.feedbeforeflight.reglogproducer.batch;
 
 import com.feedbeforeflight.onec.reglog.data.LogFileItem;
-import com.feedbeforeflight.reglogproducer.AbstractRepository;
-import com.feedbeforeflight.reglogproducer.elastic.ElasticEntityLogFileItem;
+import com.feedbeforeflight.reglogproducer.LogFileItemRepository;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.stereotype.Component;
 
@@ -11,14 +10,14 @@ import java.util.List;
 @Component
 public class LogFileItemWriter implements ItemWriter<LogFileItem> {
 
-    private AbstractRepository<LogFileItem> logFileItemRepository;
+    private final LogFileItemRepository logFileItemRepository;
 
 //    @Autowired(required = true)
 //    public void setLogEntryRepository(LogEntryRepository logEntryRepository) {
 //        this.logEntryRepository = logEntryRepository;
 //    }
 
-    public LogFileItemWriter(AbstractRepository<LogFileItem> logFileItemRepository) {
+    public LogFileItemWriter(LogFileItemRepository logFileItemRepository) {
         this.logFileItemRepository = logFileItemRepository;
     }
 

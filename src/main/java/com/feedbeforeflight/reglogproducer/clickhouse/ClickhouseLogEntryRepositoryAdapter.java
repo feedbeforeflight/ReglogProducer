@@ -2,27 +2,30 @@ package com.feedbeforeflight.reglogproducer.clickhouse;
 
 import com.feedbeforeflight.onec.reglog.data.LogFileItem;
 import com.feedbeforeflight.reglogproducer.LogFileItemRepository;
-import com.feedbeforeflight.reglogproducer.elastic.ElasticEntityLogFileItem;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ParameterizedPreparedStatementSetter;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.util.Assert;
 
 import javax.annotation.PostConstruct;
 import java.sql.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
+@Slf4j
 public class ClickhouseLogEntryRepositoryAdapter implements LogFileItemRepository {
 
-    private static final String dbUrl = "jdbc:clickhouse://localhost:8123/default";
+    private final String dbUrl;
     private Connection connection;
 
     private final JdbcTemplate jdbcTemplate;
     private final String tableName;
+    private final String databaseName;
 
-    public ClickhouseLogEntryRepositoryAdapter(JdbcTemplate jdbcTemplate, String tableName) {
+    public ClickhouseLogEntryRepositoryAdapter(JdbcTemplate jdbcTemplate, String databaseName, String tableName) {
         this.jdbcTemplate = jdbcTemplate;
         this.tableName = tableName;
+        this.databaseName = databaseName;
+        this.dbUrl = "jdbc:clickhouse://localhost:8123/" + databaseName;
     }
 
     @PostConstruct
@@ -32,8 +35,40 @@ public class ClickhouseLogEntryRepositoryAdapter implements LogFileItemRepositor
         if (!tableExists()) { ensureTable(); }
     }
 
+    private void doSaveAll(List<ClickhouseEntityLogFileItem> list) {
+
+    }
+
     @Override
     public void saveAll(List<? extends LogFileItem> list) {
+
+//        doSaveAll((List<ClickhouseEntityLogFileItem>) list);
+
+
+        if (list.size() == 0) { return; }
+
+        int maximumRowNumber;
+
+        try {
+            maximumRowNumber = getMaximumRowNumber(list.get(0).getFileName());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        List<ClickhouseEntityLogFileItem> updateList;
+
+        if (maximumRowNumber < list.get(0).getRowNumber()) {
+            updateList = (List<ClickhouseEntityLogFileItem>) list;
+        }
+        else if (maximumRowNumber >= list.get(list.size() - 1).getRowNumber()) {
+            //log.debug("Skipped " + list.size() + " of " + list.size());
+            return;
+        }
+        else {
+            updateList = (List<ClickhouseEntityLogFileItem>) list.stream().filter(item -> item.getRowNumber() > maximumRowNumber).collect(Collectors.toList());
+            log.debug("Skipped " + (list.size() - updateList.size()) + " of " + list.size());
+        }
+
+        log.debug("Writing to database " + updateList.size() + " records. Max row number: " + maximumRowNumber);
 
         String sql = "INSERT INTO " + tableName + " (" +
                 "file_name,\n" +
@@ -59,41 +94,43 @@ public class ClickhouseLogEntryRepositoryAdapter implements LogFileItemRepositor
                 "values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
         jdbcTemplate.batchUpdate(sql,
-                (List<ClickhouseEntityLogFileItem>) list,
-                list.size(),
-                new ParameterizedPreparedStatementSetter<ClickhouseEntityLogFileItem>() {
-                    @Override
-                    public void setValues(PreparedStatement ps, ClickhouseEntityLogFileItem argument) throws SQLException {
+                updateList,
+                updateList.size(),
+                (ps, argument) -> {
 //                        argument.createId(argument.getFileName(), argument.getRowNumber());
-                        ps.setString(1, argument.getFileName());
-                        ps.setDate(2, new Date(argument.getTimestamp().getTime()));
-                        ps.setInt(3, argument.getTransactionState().ordinal());
+                    ps.setString(1, argument.getFileName());
+                    ps.setDate(2, new Date(argument.getTimestamp().getTime()));
+                    ps.setInt(3, argument.getTransactionState().ordinal());
 //                        ps.setDate(4, argument.getTransactionDate() == null ? new Date(0) : new Date(argument.getTransactionDate().getTime()));
-                        ps.setDate(4, argument.getTransactionDate() == null ? null : new Date(argument.getTransactionDate().getTime()));
-                        ps.setInt(5, argument.getTransactionNumber());
-                        ps.setString(6, argument.getUsername());
-                        ps.setString(7, argument.getComputer());
-                        ps.setString(8, argument.getApplication());
-                        ps.setInt(9, argument.getConnection());
-                        ps.setString(10, argument.getEvent());
-                        ps.setInt(11, argument.getEventImportance().ordinal());
-                        ps.setString(12, argument.getComment());
-                        ps.setString(13, argument.getMetadata());
-                        ps.setString(14, argument.getData());
-                        ps.setString(15, argument.getDataRepresentation());
-                        ps.setString(16, argument.getServer());
-                        ps.setInt(17, argument.getMainPort());
-                        ps.setInt(18, argument.getAuxiliaryPort());
-                        ps.setInt(19, argument.getSession());
-                        ps.setInt(20, argument.getRowNumber());
-                    }
+                    ps.setDate(4, argument.getTransactionDate() == null ? null : new Date(argument.getTransactionDate().getTime()));
+                    ps.setInt(5, argument.getTransactionNumber());
+                    ps.setString(6, argument.getUsername());
+                    ps.setString(7, argument.getComputer());
+                    ps.setString(8, argument.getApplication());
+                    ps.setInt(9, argument.getConnection());
+                    ps.setString(10, argument.getEvent());
+                    ps.setInt(11, argument.getEventImportance().ordinal());
+                    ps.setString(12, argument.getComment());
+                    ps.setString(13, argument.getMetadata());
+                    ps.setString(14, argument.getData());
+                    ps.setString(15, argument.getDataRepresentation());
+                    ps.setString(16, argument.getServer());
+                    ps.setInt(17, argument.getMainPort());
+                    ps.setInt(18, argument.getAuxiliaryPort());
+                    ps.setInt(19, argument.getSession());
+                    ps.setInt(20, argument.getRowNumber());
                 });
     }
 
-    private int getMaximumRowNumber() {
-        String sql = "SELECT MAX(row_number) FROM " + tableName + " WHERE file_name=?";
+    private int getMaximumRowNumber(String fileName) throws SQLException {
+        String sql = "SELECT MAX(row_number) FROM " + databaseName + "." + tableName + " WHERE file_name=?";
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setString(1, fileName);
 
-        return 0;
+        ResultSet resultSet = preparedStatement.executeQuery();
+        resultSet.next();
+
+        return resultSet.getInt(1);
     }
 
     private boolean tableExists() throws SQLException {
@@ -110,11 +147,13 @@ public class ClickhouseLogEntryRepositoryAdapter implements LogFileItemRepositor
     }
 
     private void ensureTable() throws SQLException {
-        String query = "CREATE TABLE IF NOT EXISTS " + tableName + "(\n" +
+        log.info("Creating table " + databaseName + "." + tableName);
+
+        String query = "CREATE TABLE IF NOT EXISTS " + databaseName + "." + tableName + "(\n" +
                 "file_name          String,\n" +
                 "row_number          Int32,\n" +
                 "timestamp  DateTime,\n" +
-                "transaction_state          Enum8('NONE' = 1, 'UPDATED' = 2, 'RUNNING' = 3, 'CANCELLED' = 4),\n" +
+                "transaction_state          Enum8('NONE' = 0, 'UPDATED' = 1, 'RUNNING' = 2, 'CANCELLED' = 3),\n" +
                 "transaction_date  DateTime NULL,\n" +
                 "transaction_number     Int32,\n" +
                 "username          String,\n" +
@@ -131,10 +170,10 @@ public class ClickhouseLogEntryRepositoryAdapter implements LogFileItemRepositor
                 "main_port          String,\n" +
                 "auxiliary_port          String,\n" +
                 "session          String,\n" +
-                "PRIMARY KEY (id)\n" +
+                "PRIMARY KEY (file_name, row_number)\n" +
                 ")\n" +
                 "engine=MergeTree()\n" +
-                "PARTITION BY toYYYYMM(timestamp) ORDER BY id";
+                "PARTITION BY toYYYYMM(timestamp) ORDER BY (file_name, row_number)";
 
         PreparedStatement statement = connection.prepareStatement(query);
         statement.execute();

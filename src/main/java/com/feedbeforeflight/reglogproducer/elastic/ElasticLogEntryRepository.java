@@ -10,6 +10,6 @@ import org.springframework.stereotype.Repository;
         havingValue = "elasticsearch"
 )@Repository
 public interface ElasticLogEntryRepository extends ElasticsearchRepository<ElasticEntityLogFileItem, String> {
-//public interface LogEntryRepository {
+
 
 }
