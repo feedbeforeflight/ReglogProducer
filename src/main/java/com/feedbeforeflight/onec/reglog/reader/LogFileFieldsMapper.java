@@ -7,39 +7,37 @@ import com.feedbeforeflight.onec.reglog.data.TransactionState;
 import com.feedbeforeflight.onec.reglog.dictionary.*;
 import com.feedbeforeflight.reglogproducer.LogfileUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.Assert;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
-import java.util.function.BinaryOperator;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class LogFileFieldsMapper {
 
     private final SimpleDateFormat simpleDateFormat;
     private final Dictionary dictionary;
-    private int timeZone;
-    private final long timezoneMilliseconds;
+    private final ZoneId zoneId;
+
     private final String databaseName;
     private final String logfileName;
     private LogFileItemFactory itemFactory;
 
-    public LogFileFieldsMapper(Dictionary dictionary, int timeZone, String databaseName, String logfileName, LogFileItemFactory itemFactory) {
+    public LogFileFieldsMapper(Dictionary dictionary, String timeZone, String databaseName, String logfileName, LogFileItemFactory itemFactory) {
         this.dictionary = dictionary;
-        this.timeZone = timeZone;
         this.logfileName = logfileName;
         this.databaseName = databaseName;
         this.itemFactory = itemFactory;
 
-        timezoneMilliseconds = timeZone * 3600000L;
+        zoneId = ZoneId.of(timeZone);
         simpleDateFormat = new SimpleDateFormat("yyyyMMddkkmmss");
     }
 
     private String removeQuotes(String string) {
-        if (string.equals("\"\"")) { return new String(); }
+        if (string.equals("\"\"")) { return ""; }
         else { return string.substring(1, string.length() - 1); }
     }
 
@@ -76,7 +74,13 @@ public class LogFileFieldsMapper {
         String[] transactionInfoItems = transactionInfo.split(",");
         long originalSeconds = Long.parseLong(transactionInfoItems[0], 16);
         if (originalSeconds != 0) {
-            result.setTransactionDate(new Date(originalSeconds / 10 - LogfileUtils.unixTimeSeconds - timezoneMilliseconds));
+            // original datetime in milliseconds is in local timezone,
+            // and we convert it to Zulu time keeping in mind that offset sometimes depends on time
+            Instant instant = Instant.ofEpochMilli(originalSeconds / 10 - LogfileUtils.unixTimeSeconds);
+            int secondsOffset = zoneId.getRules().getOffset(instant).getTotalSeconds();
+            Date date = new Date(originalSeconds / 10 - LogfileUtils.unixTimeSeconds - secondsOffset * 1000L);
+
+            result.setTransactionDate(date);
             result.setTransactionNumber(Integer.parseInt(transactionInfoItems[1], 16));
         }
 

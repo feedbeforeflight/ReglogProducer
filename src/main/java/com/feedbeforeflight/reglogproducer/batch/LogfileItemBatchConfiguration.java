@@ -27,6 +27,8 @@ import org.springframework.context.annotation.Configuration;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.List;
 
 @Configuration
@@ -40,7 +42,7 @@ public class LogfileItemBatchConfiguration {
     private final LogFileItemRepository logFileItemRepository;
 
     @Value("${timezone}")
-    private int timezone;
+    private String timezone;
     @Value("${database-name}")
     private String databaseName;
     @Value("${chunk-size:1000}")
@@ -94,6 +96,10 @@ public class LogfileItemBatchConfiguration {
 //        lineMapper.setFieldSetMapper(new LogfileItemFieldSetMapper(dictionary, timezone, databaseName, dropExtension(path.toString())));
 //
 //        reader.setLineMapper(lineMapper);
+
+//        ZoneId zone = ZoneId.of(timezone);
+//        zone.getRules().getOffset();
+//        int timeZoneOffset = ZoneOffset.of(zone).getTotalSeconds();
 
         LogFileItemReader logFileItemReader = new LogFileItemReader(filename);
         logFileItemReader.openFile();

@@ -99,10 +99,10 @@ public class ClickhouseLogEntryRepositoryAdapter implements LogFileItemRepositor
                 (ps, argument) -> {
 //                        argument.createId(argument.getFileName(), argument.getRowNumber());
                     ps.setString(1, argument.getFileName());
-                    ps.setDate(2, new Date(argument.getTimestamp().getTime()));
+                    ps.setTimestamp(2, new Timestamp(argument.getTimestamp().getTime()));
                     ps.setInt(3, argument.getTransactionState().ordinal());
-//                        ps.setDate(4, argument.getTransactionDate() == null ? new Date(0) : new Date(argument.getTransactionDate().getTime()));
-                    ps.setDate(4, argument.getTransactionDate() == null ? null : new Date(argument.getTransactionDate().getTime()));
+//                        ps.setTimestamp(4, argument.getTransactionDate() == null ? new Date(0) : new Timestamp(argument.getTransactionDate().getTime()));
+                    ps.setTimestamp(4, argument.getTransactionDate() == null ? null : new Timestamp(argument.getTransactionDate().getTime()));
                     ps.setInt(5, argument.getTransactionNumber());
                     ps.setString(6, argument.getUsername());
                     ps.setString(7, argument.getComputer());
