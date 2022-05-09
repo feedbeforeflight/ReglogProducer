@@ -47,9 +47,9 @@ class LogFileItemReaderTest {
         LogFileItemReader logFileItemReader = new LogFileItemReader();
         logFileItemReader.reader = lineNumberReaderMock;
 
-        assertEquals(logFileItemReader.readSeparatedLine(), recordStrings[0]);
-        assertEquals(logFileItemReader.readSeparatedLine(), recordStrings[1]);
-        assertEquals(logFileItemReader.readSeparatedLine(), recordStrings[2]);
+        assertEquals(recordStrings[0], logFileItemReader.readSeparatedLine());
+        assertEquals(recordStrings[1], logFileItemReader.readSeparatedLine());
+        assertEquals(recordStrings[2], logFileItemReader.readSeparatedLine());
     }
 
     @Test

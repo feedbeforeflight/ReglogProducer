@@ -1,17 +1,21 @@
 package com.feedbeforeflight.onec.reglog.reader;
 
-import org.springframework.util.Assert;
-
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class LogFileItemReader extends AbstractLogFileReader {
 
-    public LogFileItemReader() {}
-    public LogFileItemReader(String fileName) {super(fileName);}
+    private String recordStartLineBuffer;
+    private final Pattern recordStartLinePattern = Pattern.compile("^\\{\\d{14},[A-Z],$"); // something like {20220119001056,C,
+
+    public LogFileItemReader() {
+    }
+
+    public LogFileItemReader(String fileName) {
+        super(fileName);
+    }
 
     public void openFile() throws IOException {
         super.openFile();
@@ -26,23 +30,30 @@ public class LogFileItemReader extends AbstractLogFileReader {
     protected String readSeparatedLine() throws IOException {
         StringBuilder result = new StringBuilder();
 
-        int openCount = 0;
-        int closeCount = 0;
-
         String newLine;
-        do {
+
+        if (recordStartLineBuffer != null) {
+            result.append(recordStartLineBuffer);
+            recordStartLineBuffer = null;
+        } else {
             newLine = reader.readLine();
             if (newLine != null) {
-                for (int i = 0; i < newLine.length(); i++) {
-                    if (newLine.charAt(i) == '{') { openCount++; }
-                    else if (newLine.charAt(i) == '}') { closeCount++; }
+                result.append(newLine);
+            }
+        }
+
+        do {
+            newLine = reader.readLine();
+
+            if (newLine != null) {
+                if (recordStartLinePattern.matcher(newLine).matches()) {
+                    recordStartLineBuffer = newLine;
+                    break;
                 }
 
                 result.append(newLine);
-                if (openCount == closeCount) {
-                    break;
-                }
             }
+
         } while (newLine != null);
 
         return result.length() == 0 ? null : result.toString();
@@ -62,21 +73,17 @@ public class LogFileItemReader extends AbstractLogFileReader {
             if (currentChar == ',' && !inParenthesis && !inQuotes) {
                 tokens.add(line.substring(start, i));
                 start = i + 1;
-            }
-            else if (currentChar == '{' && !inQuotes) {
+            } else if (currentChar == '{' && !inQuotes) {
                 inParenthesis = true;
                 parenthesisCount++;
-            }
-            else if (currentChar == '}' && !inQuotes) {
+            } else if (currentChar == '}' && !inQuotes) {
                 parenthesisCount--;
                 inParenthesis = parenthesisCount != 0;
-            }
-            else if (currentChar == '"') {
+            } else if (currentChar == '"') {
                 if (line.charAt(i + 1) == '"') { // double quotes
                     i++;
                     continue;
-                }
-                else {
+                } else {
                     inQuotes = !inQuotes;
                 }
             }

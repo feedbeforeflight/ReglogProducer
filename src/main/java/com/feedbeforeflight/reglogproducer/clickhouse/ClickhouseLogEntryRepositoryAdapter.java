@@ -65,10 +65,11 @@ public class ClickhouseLogEntryRepositoryAdapter implements LogFileItemRepositor
         }
         else {
             updateList = (List<ClickhouseEntityLogFileItem>) list.stream().filter(item -> item.getRowNumber() > maximumRowNumber).collect(Collectors.toList());
-            log.debug("Skipped " + (list.size() - updateList.size()) + " of " + list.size());
+            //log.debug("Skipped " + (list.size() - updateList.size()) + " of " + list.size());
         }
 
-        log.debug("Writing to database " + updateList.size() + " records. Max row number: " + maximumRowNumber);
+        //log.debug("Writing to database " + updateList.size() + " records. Max row number: " + maximumRowNumber);
+        System.out.print("Writing to database " + updateList.size() + " records. Rows stored from file: " + maximumRowNumber + "\r");
 
         String sql = "INSERT INTO " + tableName + " (" +
                 "file_name,\n" +

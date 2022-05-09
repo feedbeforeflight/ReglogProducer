@@ -97,10 +97,6 @@ public class LogfileItemBatchConfiguration {
 //
 //        reader.setLineMapper(lineMapper);
 
-//        ZoneId zone = ZoneId.of(timezone);
-//        zone.getRules().getOffset();
-//        int timeZoneOffset = ZoneOffset.of(zone).getTotalSeconds();
-
         LogFileItemReader logFileItemReader = new LogFileItemReader(filename);
         logFileItemReader.openFile();
         LogFileFieldsMapper logFileFieldsMapper = new LogFileFieldsMapper(dictionary,
