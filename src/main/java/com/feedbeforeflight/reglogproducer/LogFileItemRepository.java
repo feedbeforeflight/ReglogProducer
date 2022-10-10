@@ -1,6 +1,6 @@
 package com.feedbeforeflight.reglogproducer;
 
-import com.feedbeforeflight.onec.reglog.data.LogFileItem;
+import com.feedbeforeflight.enterprise1cfiles.reglog.data.LogFileItem;
 
 import java.util.List;
 

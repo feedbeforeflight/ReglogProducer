@@ -1,7 +1,7 @@
 package com.feedbeforeflight.reglogproducer.batch;
 
-import com.feedbeforeflight.onec.reglog.reader.DictionaryObjectCreator;
-import com.feedbeforeflight.onec.reglog.reader.DictionaryFileRecord;
+import com.feedbeforeflight.enterprise1cfiles.reglog.reader.DictionaryObjectCreator;
+import com.feedbeforeflight.enterprise1cfiles.reglog.reader.DictionaryFileRecord;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.stereotype.Component;
 

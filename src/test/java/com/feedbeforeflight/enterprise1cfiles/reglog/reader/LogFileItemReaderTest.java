@@ -1,4 +1,4 @@
-package com.feedbeforeflight.onec.reglog.reader;
+package com.feedbeforeflight.enterprise1cfiles.reglog.reader;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

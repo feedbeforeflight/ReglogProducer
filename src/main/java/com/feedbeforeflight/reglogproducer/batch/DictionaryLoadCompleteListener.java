@@ -1,6 +1,6 @@
 package com.feedbeforeflight.reglogproducer.batch;
 
-import com.feedbeforeflight.onec.reglog.dictionary.Dictionary;
+import com.feedbeforeflight.enterprise1cfiles.reglog.dictionary.Dictionary;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;

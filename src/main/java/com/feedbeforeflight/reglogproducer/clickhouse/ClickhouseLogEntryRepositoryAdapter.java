@@ -1,10 +1,9 @@
 package com.feedbeforeflight.reglogproducer.clickhouse;
 
-import com.feedbeforeflight.onec.reglog.data.LogFileItem;
+import com.feedbeforeflight.enterprise1cfiles.reglog.data.LogFileItem;
 import com.feedbeforeflight.reglogproducer.LogFileItemRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.ParameterizedPreparedStatementSetter;
 
 import javax.annotation.PostConstruct;
 import java.sql.*;
@@ -66,9 +65,9 @@ public class ClickhouseLogEntryRepositoryAdapter implements LogFileItemRepositor
         else {
             updateList = (List<ClickhouseEntityLogFileItem>) list.stream().filter(item -> item.getRowNumber() > maximumRowNumber).collect(Collectors.toList());
             //log.debug("Skipped " + (list.size() - updateList.size()) + " of " + list.size());
+            System.out.print("Skipping " + (list.size() - updateList.size()) + " of " + list.size() + "\r");
         }
 
-        //log.debug("Writing to database " + updateList.size() + " records. Max row number: " + maximumRowNumber);
         System.out.print("Writing to database " + updateList.size() + " records. Rows stored from file: " + maximumRowNumber + "\r");
 
         String sql = "INSERT INTO " + tableName + " (" +
@@ -153,7 +152,7 @@ public class ClickhouseLogEntryRepositoryAdapter implements LogFileItemRepositor
         String query = "CREATE TABLE IF NOT EXISTS " + databaseName + "." + tableName + "(\n" +
                 "file_name          String,\n" +
                 "row_number          Int32,\n" +
-                "timestamp  DateTime,\n" +
+                "timestamp  DateTime    CODEC(DoubleDelta),\n" +
                 "transaction_state          Enum8('NONE' = 0, 'UPDATED' = 1, 'RUNNING' = 2, 'CANCELLED' = 3),\n" +
                 "transaction_date  DateTime NULL,\n" +
                 "transaction_number     Int32,\n" +
@@ -163,10 +162,10 @@ public class ClickhouseLogEntryRepositoryAdapter implements LogFileItemRepositor
                 "connection          String,\n" +
                 "event          String,\n" +
                 "event_importance          String,\n" +
-                "comment          String,\n" +
+                "comment          String    CODEC(ZSTD(22)),\n" +
                 "metadata          String,\n" +
-                "data          String,\n" +
-                "data_representation          String,\n" +
+                "data          String   CODEC(ZSTD(22)),\n" +
+                "data_representation          String    CODEC(ZSTD(22)),\n" +
                 "server          String,\n" +
                 "main_port          String,\n" +
                 "auxiliary_port          String,\n" +

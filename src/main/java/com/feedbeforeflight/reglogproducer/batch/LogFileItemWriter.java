@@ -1,6 +1,6 @@
 package com.feedbeforeflight.reglogproducer.batch;
 
-import com.feedbeforeflight.onec.reglog.data.LogFileItem;
+import com.feedbeforeflight.enterprise1cfiles.reglog.data.LogFileItem;
 import com.feedbeforeflight.reglogproducer.LogFileItemRepository;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.stereotype.Component;

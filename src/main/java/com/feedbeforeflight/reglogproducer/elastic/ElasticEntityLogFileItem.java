@@ -2,7 +2,7 @@ package com.feedbeforeflight.reglogproducer.elastic;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.feedbeforeflight.onec.reglog.data.LogFileItem;
+import com.feedbeforeflight.enterprise1cfiles.reglog.data.LogFileItem;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -1,6 +1,6 @@
 package com.feedbeforeflight.reglogproducer.clickhouse;
 
-import com.feedbeforeflight.onec.reglog.data.LogFileItem;
+import com.feedbeforeflight.enterprise1cfiles.reglog.data.LogFileItem;
 import lombok.Getter;
 import lombok.Setter;
 

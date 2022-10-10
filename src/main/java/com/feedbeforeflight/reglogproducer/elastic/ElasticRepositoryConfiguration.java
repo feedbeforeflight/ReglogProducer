@@ -1,7 +1,6 @@
 package com.feedbeforeflight.reglogproducer.elastic;
 
-import com.feedbeforeflight.onec.reglog.data.LogFileItem;
-import com.feedbeforeflight.onec.reglog.data.LogFileItemFactory;
+import com.feedbeforeflight.enterprise1cfiles.reglog.data.LogFileItemFactory;
 import com.feedbeforeflight.reglogproducer.LogFileItemRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.conn.ssl.TrustAllStrategy;

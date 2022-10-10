@@ -1,6 +1,6 @@
 package com.feedbeforeflight.reglogproducer.batch;
 
-import com.feedbeforeflight.reglogproducer.LogfileUtils;
+import com.feedbeforeflight.enterprise1cfiles.reglog.reader.LogfileUtils;
 import org.springframework.batch.item.file.separator.RecordSeparatorPolicy;
 
 import java.util.regex.Matcher;

@@ -1,12 +1,11 @@
 package com.feedbeforeflight.reglogproducer.batch;
 
-import com.feedbeforeflight.onec.reglog.data.LogFileItem;
-import com.feedbeforeflight.onec.reglog.data.LogFileItemFactory;
-import com.feedbeforeflight.onec.reglog.dictionary.Dictionary;
-import com.feedbeforeflight.onec.reglog.reader.LogFileFieldsMapper;
-import com.feedbeforeflight.onec.reglog.reader.LogFileItemReader;
+import com.feedbeforeflight.enterprise1cfiles.reglog.data.LogFileItem;
+import com.feedbeforeflight.enterprise1cfiles.reglog.data.LogFileItemFactory;
+import com.feedbeforeflight.enterprise1cfiles.reglog.dictionary.Dictionary;
+import com.feedbeforeflight.enterprise1cfiles.reglog.reader.LogFileFieldsMapper;
+import com.feedbeforeflight.enterprise1cfiles.reglog.reader.LogFileItemReader;
 import com.feedbeforeflight.reglogproducer.LogFileItemRepository;
-import com.feedbeforeflight.reglogproducer.elastic.ElasticEntityLogFileItem;
 import com.feedbeforeflight.reglogproducer.logfile.LogfileDescription;
 import com.feedbeforeflight.reglogproducer.logfile.LogfileFilesList;
 import lombok.extern.slf4j.Slf4j;
@@ -27,8 +26,6 @@ import org.springframework.context.annotation.Configuration;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.List;
 
 @Configuration
@@ -72,8 +69,7 @@ public class LogfileItemBatchConfiguration {
     }
 
     private Step getLoadLogfileStep(LogfileDescription logfileDescription, LogFileItemFactory logFileItemFactory) throws IOException {
-        log.info("Building loading step for file " + logfileDescription.getFilePath().getFileName());
-        log.info("With chunk size " + chunkSize);
+        log.info("Building loading step for file {} with chunk size {}", logfileDescription.getFilePath().getFileName(), chunkSize);
 
         return stepBuilderFactory.get("loadLogfileStep")
                 .<LogFileItem, LogFileItem>chunk(chunkSize)

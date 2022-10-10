@@ -1,10 +1,10 @@
 package com.feedbeforeflight.reglogproducer.batch;
 
-import com.feedbeforeflight.onec.reglog.dictionary.Dictionary;
-import com.feedbeforeflight.onec.reglog.reader.DictionaryFileFieldsMapper;
-import com.feedbeforeflight.onec.reglog.reader.DictionaryFileItemReader;
-import com.feedbeforeflight.onec.reglog.reader.DictionaryFileRecord;
-import com.feedbeforeflight.onec.reglog.reader.DictionaryObjectCreator;
+import com.feedbeforeflight.enterprise1cfiles.reglog.dictionary.Dictionary;
+import com.feedbeforeflight.enterprise1cfiles.reglog.reader.DictionaryFileFieldsMapper;
+import com.feedbeforeflight.enterprise1cfiles.reglog.reader.DictionaryFileItemReader;
+import com.feedbeforeflight.enterprise1cfiles.reglog.reader.DictionaryFileRecord;
+import com.feedbeforeflight.enterprise1cfiles.reglog.reader.DictionaryObjectCreator;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
