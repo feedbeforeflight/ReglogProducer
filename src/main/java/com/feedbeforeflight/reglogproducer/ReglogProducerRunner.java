@@ -1,6 +1,6 @@
 package com.feedbeforeflight.reglogproducer;
 
-import com.feedbeforeflight.reglogproducer.logfile.LogfileFilesList;
+import com.feedbeforeflight.enterprise1cfiles.reglog.reader.LogfileFilesList;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.batch.core.Job;
@@ -26,7 +26,7 @@ public class ReglogProducerRunner implements CommandLineRunner, ApplicationConte
     private JobLauncher jobLauncher;
 
     @Autowired
-            @Qualifier("loadDictionaryJob")
+    @Qualifier("loadDictionaryJob")
     private Job dictionaryJob;
 //    @Autowired
 //            @Qualifier("loadLogfilesJob")

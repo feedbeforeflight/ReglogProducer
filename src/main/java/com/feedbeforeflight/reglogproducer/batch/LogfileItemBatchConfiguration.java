@@ -6,8 +6,8 @@ import com.feedbeforeflight.enterprise1cfiles.reglog.dictionary.Dictionary;
 import com.feedbeforeflight.enterprise1cfiles.reglog.reader.LogFileFieldsMapper;
 import com.feedbeforeflight.enterprise1cfiles.reglog.reader.LogFileItemReader;
 import com.feedbeforeflight.reglogproducer.LogFileItemRepository;
-import com.feedbeforeflight.reglogproducer.logfile.LogfileDescription;
-import com.feedbeforeflight.reglogproducer.logfile.LogfileFilesList;
+import com.feedbeforeflight.enterprise1cfiles.reglog.reader.LogfileDescription;
+import com.feedbeforeflight.enterprise1cfiles.reglog.reader.LogfileFilesList;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -44,6 +44,10 @@ public class LogfileItemBatchConfiguration {
     private String databaseName;
     @Value("${chunk-size:1000}")
     private int chunkSize;
+    @Value("${log-directory-name}")
+    private String logDirectoryName;
+    @Value("${work-directory-name}")
+    private String workDirectoryName;
 
     public LogfileItemBatchConfiguration(StepBuilderFactory stepBuilderFactory, Dictionary dictionary, LogFileItemRepository logFileItemRepository) {
         this.stepBuilderFactory = stepBuilderFactory;
@@ -68,6 +72,11 @@ public class LogfileItemBatchConfiguration {
         return simpleJobBuilder.build();
     }
 
+    @Bean
+    public LogfileFilesList filesList() throws IOException {
+        return new LogfileFilesList(logDirectoryName, workDirectoryName);
+    }
+
     private Step getLoadLogfileStep(LogfileDescription logfileDescription, LogFileItemFactory logFileItemFactory) throws IOException {
         log.info("Building loading step for file {} with chunk size {}", logfileDescription.getFilePath().getFileName(), chunkSize);
 
@@ -81,17 +90,7 @@ public class LogfileItemBatchConfiguration {
     }
 
     private ItemReader<LogFileItem> createReader(String filename, int skipItems, LogFileItemFactory logFileItemFactory) throws IOException {
-//        FlatFileItemReader<LogfileItem> reader = new FlatFileItemReader<>();
-//        reader.setRecordSeparatorPolicy(new LogfileItemSeparatorPolicy());
-//        reader.setResource(new FileSystemResource(filename));
-//        reader.setLinesToSkip(3 + skipItems);
-//
         Path path = Paths.get(filename).getFileName();
-//        RowNumberAwareLineMapper<LogfileItem> lineMapper = new RowNumberAwareLineMapper<>();
-//        lineMapper.setLineTokenizer(new LogfileLineTokenizer());
-//        lineMapper.setFieldSetMapper(new LogfileItemFieldSetMapper(dictionary, timezone, databaseName, dropExtension(path.toString())));
-//
-//        reader.setLineMapper(lineMapper);
 
         LogFileItemReader logFileItemReader = new LogFileItemReader(filename);
         logFileItemReader.openFile();
